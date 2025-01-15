@@ -114,8 +114,8 @@ export default function Home() {
         </nav>
         
         <div className="flex-1 flex overflow-hidden">
-          <div className="w-[32%] flex flex-col gap-4 p-4 overflow-hidden border-r border-border">
-            <div className="flex-none">
+          <div className="w-[32%] flex flex-col gap-4 overflow-hidden border-r border-border">
+            <div className="flex-none p-4">
               <ScriptInputCard
                 script={script}
                 onScriptChange={setScript}
@@ -130,12 +130,10 @@ export default function Home() {
 
             {analysis && (
               <div className="flex-1 overflow-auto">
-                <div className="pt-6">
-                  <div className="border-t border-border -mx-4" />
-                  <div className="mt-6 space-y-6">
-                    <h2 className="text-lg font-semibold">Analysis</h2>
-                    <ScriptAnalysisCard analysis={analysis.analysis} />
-                  </div>
+                <div className="border-t border-border w-full" />
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold mb-6">Analysis</h2>
+                  <ScriptAnalysisCard analysis={analysis.analysis} />
                 </div>
               </div>
             )}
@@ -144,41 +142,9 @@ export default function Home() {
           {analysis && (
             <div className="flex-1 h-full overflow-hidden">
               <div className="sticky top-0 bg-background z-10 border-b border-border px-6 py-3">
-                <h2 className="text-2xl font-semibold mb-4">Rewritten Script</h2>
-                <div className="flex gap-4">
-                  <button 
-                    onClick={() => document.getElementById('learning-objectives')?.scrollIntoView({ behavior: 'smooth' })}
-                    className={`text-sm hover:text-primary ${activeSection === 'learning-objectives' ? 'text-primary font-medium' : ''}`}
-                  >
-                    Learning Objectives
-                  </button>
-                  <button 
-                    onClick={() => document.getElementById('introduction')?.scrollIntoView({ behavior: 'smooth' })}
-                    className={`text-sm hover:text-primary ${activeSection === 'introduction' ? 'text-primary font-medium' : ''}`}
-                  >
-                    Introduction
-                  </button>
-                  <button 
-                    onClick={() => document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth' })}
-                    className={`text-sm hover:text-primary ${activeSection === 'main-content' ? 'text-primary font-medium' : ''}`}
-                  >
-                    Main Content
-                  </button>
-                  <button 
-                    onClick={() => document.getElementById('conclusion')?.scrollIntoView({ behavior: 'smooth' })}
-                    className={`text-sm hover:text-primary ${activeSection === 'conclusion' ? 'text-primary font-medium' : ''}`}
-                  >
-                    Conclusion
-                  </button>
-                  <button 
-                    onClick={() => document.getElementById('call-to-action')?.scrollIntoView({ behavior: 'smooth' })}
-                    className={`text-sm hover:text-primary ${activeSection === 'call-to-action' ? 'text-primary font-medium' : ''}`}
-                  >
-                    Call to Action
-                  </button>
-                </div>
+                <h2 className="text-2xl font-semibold">Rewritten Script</h2>
               </div>
-              <div className="p-6 overflow-auto h-[calc(100%-5rem)]">
+              <div className="p-6 overflow-auto h-[calc(100%-4rem)]">
                 <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
               </div>
             </div>
