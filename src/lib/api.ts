@@ -76,6 +76,8 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
         ],
         max_tokens: 4000,
         temperature: 0.7,
+        response_format: { type: "json_object" },
+        seed: 42,
       },
       {
         headers: {
@@ -86,10 +88,8 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
       }
     );
 
-    console.log('analyzeText: Received response from OpenRouter API');
     console.log('analyzeText: Response status:', response.status);
-    console.log('analyzeText: Response data:', JSON.stringify(response.data, null, 2));
-
+    
     if (!response.data || !response.data.choices || !response.data.choices.length) {
       console.error('analyzeText: Invalid API response structure:', response.data);
       throw new Error('Invalid API response structure');
@@ -101,7 +101,15 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
       throw new Error('No content in API response');
     }
 
-    console.log('analyzeText: Successfully extracted content from response');
+    // Try to parse the content as JSON to validate it early
+    try {
+      JSON.parse(content);
+    } catch (parseError) {
+      console.error('analyzeText: Response is not valid JSON:', content);
+      throw new Error('API response is not valid JSON');
+    }
+
+    console.log('analyzeText: Successfully validated JSON response');
     return content;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -115,7 +123,7 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
           method: error.config?.method,
           headers: {
             ...error.config?.headers,
-            'Authorization': '***' // Hide API key in logs
+            'Authorization': '***'
           }
         }
       });
@@ -132,26 +140,49 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
   
   try {
     const prompt = `
-      Analyze this script that will be performed by the user's trained AI avatar (using their voice and image) in a video tutorial. 
-      DO NOT add any AI introductions or statements like "I'm your AI guide" - the avatar is already trained with the user's persona.
+      As an experienced script writer and instructional designer, analyze and enhance this script that will be performed by the user's trained AI avatar.
+      DO NOT add any AI introductions - the avatar is already trained with the user's persona.
       
-      Consider:
-      - Natural, conversational tone matching the user's style
-      - Clear pauses and emphasis points
-      - Engaging delivery style
-      - Visual cue moments
-      
-      Provide:
-      1. Technical terms used (highlight terms that need visual emphasis)
-      2. Readability score (8.0-10.0, optimized for spoken delivery)
-      3. Specific improvements for delivery and pacing
-      4. A rewritten version that:
-         - Starts directly with the content (no AI/guide introductions)
-         - Uses natural pauses and emphasis
-         - Includes visual cue markers [VISUAL CUE] for graphics/demos
-         - Maintains the user's speaking style
+      Evaluate and improve the script based on these key areas:
 
-      Script:
+      1. Engagement & Structure:
+         - Hook and attention-grabbing opening
+         - Clear learning objectives
+         - Logical flow and transitions
+         - Effective conclusion and call-to-action
+         - Knowledge check points
+
+      2. Delivery & Pacing:
+         - Natural conversational tone
+         - Strategic pauses for emphasis
+         - Varied sentence lengths
+         - Chunked information
+         - Clear transitions between topics
+
+      3. Visual Integration:
+         - Visual cue markers [VISUAL CUE] for demos/graphics
+         - Emphasis points for key concepts
+         - Opportunities for on-screen text
+         - Visual metaphors and examples
+         - Data visualization moments
+
+      4. Instructional Design:
+         - Progressive complexity
+         - Real-world examples
+         - Practice opportunities
+         - Memory retention techniques
+         - Active learning prompts
+
+      5. Accessibility & Clarity:
+         - Simple language for complex concepts
+         - Defined technical terms
+         - Consistent terminology
+         - Cultural sensitivity
+         - Inclusive language
+
+      For each improvement made, mark it with [IMPLEMENTED] to track progress.
+
+      Script to analyze:
       ${script}
 
       Respond in JSON format:
@@ -161,11 +192,11 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
           "readabilityScore": number (between 8.0 and 10.0),
           "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2", ...],
           "overallScore": number (between 8.0 and 10.0),
-          "prioritizedImprovements": ["improvement1", "improvement2", ...],
+          "prioritizedImprovements": ["improvement1 [IMPLEMENTED]", "improvement2", ...],
           "sections": {
             "introduction": {
               "score": number,
-              "suggestions": ["suggestion1", "suggestion2"],
+              "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2"],
               "readabilityMetrics": {
                 "fleschKincaid": number,
                 "wordsPerSentence": number,
@@ -183,41 +214,70 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
           "callToAction": "text with [VISUAL CUE] markers"
         }
       }
+
+      Ensure each improvement is clearly marked [IMPLEMENTED] when applied in the rewritten script.
+      The rewritten script should achieve a readability score of at least 8.0 and incorporate all the marked improvements.
     `;
 
     console.log('analyzeScript: Sending prompt to analyzeText');
     const result = await analyzeText(prompt, model);
-    console.log('analyzeScript: Received result from analyzeText');
     
     try {
-      console.log('analyzeScript: Cleaning and parsing response');
-      // Clean the response by removing any potential BOM or hidden characters
+      // Clean the response
       const cleanResult = result
-        .replace(/^\uFEFF/, '') // Remove BOM
-        .replace(/^\s+|\s+$/g, '') // Trim whitespace
-        .replace(/[\u200B-\u200D\uFEFF]/g, ''); // Remove zero-width spaces
+        .replace(/^\uFEFF/, '')
+        .replace(/^\s+|\s+$/g, '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/```json\s*|\s*```/g, '');
 
-      // If response starts with "```json" and ends with "```", extract just the JSON
-      const jsonMatch = cleanResult.match(/```json\s*([\s\S]*?)\s*```/);
-      const jsonString = jsonMatch ? jsonMatch[1] : cleanResult;
-
-      console.log('analyzeScript: Cleaned JSON string:', jsonString);
+      console.log('analyzeScript: Cleaned result:', cleanResult);
       
-      const parsedResult = JSON.parse(jsonString);
-      console.log('analyzeScript: Successfully parsed JSON');
+      const parsedResult = JSON.parse(cleanResult);
       
-      // Validate the parsed result has the expected structure
-      if (!parsedResult.analysis || !parsedResult.rewrittenScript) {
-        console.error('analyzeScript: API response missing required fields:', parsedResult);
-        throw new Error('API response missing required fields');
+      // Validate the structure
+      if (!parsedResult || typeof parsedResult !== 'object') {
+        throw new Error('Invalid response format: not an object');
       }
-      
-      console.log('analyzeScript: Analysis completed successfully');
+
+      if (!parsedResult.analysis || !parsedResult.rewrittenScript) {
+        throw new Error('Invalid response format: missing required fields');
+      }
+
+      // Validate required nested fields
+      const requiredAnalysisFields = [
+        'technicalTerms',
+        'readabilityScore',
+        'suggestions',
+        'overallScore',
+        'prioritizedImprovements',
+        'sections'
+      ] as const;
+
+      const requiredRewrittenScriptFields = [
+        'learningObjectives',
+        'introduction',
+        'mainContent',
+        'conclusion',
+        'callToAction'
+      ] as const;
+
+      for (const field of requiredAnalysisFields) {
+        if (!(field in parsedResult.analysis)) {
+          throw new Error(`Invalid response format: missing analysis.${field}`);
+        }
+      }
+
+      for (const field of requiredRewrittenScriptFields) {
+        if (!(field in parsedResult.rewrittenScript)) {
+          throw new Error(`Invalid response format: missing rewrittenScript.${field}`);
+        }
+      }
+
       return parsedResult as ScriptAnalysis;
     } catch (parseError) {
-      console.error('analyzeScript: Failed to parse API response as JSON. Error:', parseError);
+      console.error('analyzeScript: Failed to parse or validate response:', parseError);
       console.error('analyzeScript: Raw response:', result);
-      throw new Error('Invalid JSON response from API');
+      throw new Error(`Invalid response format: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
     }
   } catch (error) {
     console.error('analyzeScript: Script analysis failed:', error);
