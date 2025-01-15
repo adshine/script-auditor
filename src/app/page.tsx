@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { RootLayout } from '@/components/layout/root-layout';
 import { ScriptInputCard } from '@/components/features/script-analysis/script-input-card';
@@ -64,6 +64,26 @@ export default function Home() {
   const [script, setScript] = useState('');
   const [analysis, setAnalysis] = useState<ScriptAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [activeSection, setActiveSection] = useState('learning-objectives');
+
+  // Add intersection observer to track active section
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const sections = ['learning-objectives', 'introduction', 'main-content', 'conclusion', 'call-to-action'];
+    sections.forEach((section) => {
+      const element = document.getElementById(section);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [analysis]);
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
@@ -87,14 +107,14 @@ export default function Home() {
   return (
     <RootLayout>
       <div className="h-full flex flex-col">
-        <div className="flex-none px-6 py-4">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-            Script Auditor
-          </h1>
-        </div>
+        <nav className="flex-none px-6 py-4 border-b border-border">
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold">Script Auditor</h1>
+          </div>
+        </nav>
         
         <div className="flex-1 flex overflow-hidden">
-          <div className="w-full max-w-[400px] flex flex-col gap-4 p-4 overflow-hidden border-r border-border">
+          <div className="w-[32%] flex flex-col gap-4 p-4 overflow-hidden border-r border-border">
             <div className="flex-none">
               <ScriptInputCard
                 script={script}
@@ -110,7 +130,13 @@ export default function Home() {
 
             {analysis && (
               <div className="flex-1 overflow-auto">
-                <ScriptAnalysisCard analysis={analysis.analysis} />
+                <div className="pt-6">
+                  <div className="border-t border-border -mx-4" />
+                  <div className="mt-6 space-y-6">
+                    <h2 className="text-lg font-semibold">Analysis</h2>
+                    <ScriptAnalysisCard analysis={analysis.analysis} />
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -121,26 +147,32 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold mb-4">Rewritten Script</h2>
                 <div className="flex gap-4">
                   <button 
+                    onClick={() => document.getElementById('learning-objectives')?.scrollIntoView({ behavior: 'smooth' })}
+                    className={`text-sm hover:text-primary ${activeSection === 'learning-objectives' ? 'text-primary font-medium' : ''}`}
+                  >
+                    Learning Objectives
+                  </button>
+                  <button 
                     onClick={() => document.getElementById('introduction')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="text-sm hover:text-primary"
+                    className={`text-sm hover:text-primary ${activeSection === 'introduction' ? 'text-primary font-medium' : ''}`}
                   >
                     Introduction
                   </button>
                   <button 
                     onClick={() => document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="text-sm hover:text-primary"
+                    className={`text-sm hover:text-primary ${activeSection === 'main-content' ? 'text-primary font-medium' : ''}`}
                   >
                     Main Content
                   </button>
                   <button 
                     onClick={() => document.getElementById('conclusion')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="text-sm hover:text-primary"
+                    className={`text-sm hover:text-primary ${activeSection === 'conclusion' ? 'text-primary font-medium' : ''}`}
                   >
                     Conclusion
                   </button>
                   <button 
                     onClick={() => document.getElementById('call-to-action')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="text-sm hover:text-primary"
+                    className={`text-sm hover:text-primary ${activeSection === 'call-to-action' ? 'text-primary font-medium' : ''}`}
                   >
                     Call to Action
                   </button>

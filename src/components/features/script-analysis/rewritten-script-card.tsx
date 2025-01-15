@@ -7,7 +7,7 @@ interface RewrittenScriptCardProps {
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
+      <div id="learning-objectives" className="space-y-4">
         <h3 className="text-lg font-semibold">Learning Objectives</h3>
         <ul className="list-disc pl-5 space-y-2">
           {rewrittenScript.learningObjectives.map((objective, index) => (
