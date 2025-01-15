@@ -12,7 +12,8 @@ interface ScriptInputCardProps {
   loading: boolean;
   selectedModel: string;
   onModelChange: (modelId: string) => void;
-  showFreeOnly?: boolean;
+  showFreeOnly: boolean;
+  onShowFreeOnlyChange: (showFree: boolean) => void;
 }
 
 export function ScriptInputCard({
@@ -22,35 +23,31 @@ export function ScriptInputCard({
   loading,
   selectedModel,
   onModelChange,
-  showFreeOnly = false
+  showFreeOnly,
+  onShowFreeOnlyChange
 }: ScriptInputCardProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Input Script</CardTitle>
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <CardTitle>Input Script</CardTitle>
+          <div className="w-full sm:w-64">
+            <ModelSelector
+              selectedModel={selectedModel}
+              onModelChange={onModelChange}
+              showFreeOnly={showFreeOnly}
+              onShowFreeOnlyChange={onShowFreeOnlyChange}
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <label className="text-sm font-medium mb-2 block">
-            Select AI Model
-          </label>
-          <ModelSelector
-            selectedModel={selectedModel}
-            onModelChange={onModelChange}
-            showFreeOnly={showFreeOnly}
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium mb-2 block">
-            Script Content
-          </label>
-          <Textarea
-            value={script}
-            onChange={(e) => onScriptChange(e.target.value)}
-            placeholder="Paste your tutorial script here..."
-            className="min-h-[400px] mb-4 resize-none"
-          />
-        </div>
+        <Textarea
+          value={script}
+          onChange={(e) => onScriptChange(e.target.value)}
+          placeholder="Paste your tutorial script here..."
+          className="min-h-[200px] resize-none"
+        />
         <Button
           onClick={onAnalyze}
           disabled={loading || !script.trim()}
