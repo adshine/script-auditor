@@ -27,10 +27,10 @@ export function ScriptInputCard({
   onShowFreeOnlyChange
 }: ScriptInputCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-4">
+    <div>
+      <div className="pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CardTitle>Input Script</CardTitle>
+          <h2 className="text-lg font-semibold">Input Script</h2>
           <div className="w-full sm:w-64">
             <ModelSelector
               selectedModel={selectedModel}
@@ -40,8 +40,8 @@ export function ScriptInputCard({
             />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="space-y-4">
         <Textarea
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}
@@ -59,7 +59,7 @@ export function ScriptInputCard({
           )}
           Analyze Script
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 } 

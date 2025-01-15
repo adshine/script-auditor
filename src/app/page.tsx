@@ -93,8 +93,8 @@ export default function Home() {
           </h1>
         </div>
         
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-10 gap-4 p-4 overflow-hidden">
-          <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 flex overflow-hidden">
+          <div className="w-full max-w-[400px] flex flex-col gap-4 p-4 overflow-hidden border-r border-border">
             <div className="flex-none">
               <ScriptInputCard
                 script={script}
@@ -116,8 +116,39 @@ export default function Home() {
           </div>
 
           {analysis && (
-            <div className="lg:col-span-6 h-full overflow-auto">
-              <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
+            <div className="flex-1 h-full overflow-hidden">
+              <div className="sticky top-0 bg-background z-10 border-b border-border px-6 py-3">
+                <h2 className="text-2xl font-semibold mb-4">Rewritten Script</h2>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => document.getElementById('introduction')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="text-sm hover:text-primary"
+                  >
+                    Introduction
+                  </button>
+                  <button 
+                    onClick={() => document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="text-sm hover:text-primary"
+                  >
+                    Main Content
+                  </button>
+                  <button 
+                    onClick={() => document.getElementById('conclusion')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="text-sm hover:text-primary"
+                  >
+                    Conclusion
+                  </button>
+                  <button 
+                    onClick={() => document.getElementById('call-to-action')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="text-sm hover:text-primary"
+                  >
+                    Call to Action
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 overflow-auto h-[calc(100%-5rem)]">
+                <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
+              </div>
             </div>
           )}
         </div>

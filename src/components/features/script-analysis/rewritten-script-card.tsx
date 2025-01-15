@@ -1,4 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import type { RewrittenScript } from '@/lib/api';
 
 interface RewrittenScriptCardProps {
@@ -7,45 +6,35 @@ interface RewrittenScriptCardProps {
 
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Rewritten Script</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Learning Objectives */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
-          <ul className="list-disc pl-6 space-y-1">
-            {rewrittenScript.learningObjectives.map((objective, index) => (
-              <li key={index} className="text-muted-foreground">{objective}</li>
-            ))}
-          </ul>
-        </div>
+    <div className="space-y-8">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Learning Objectives</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          {rewrittenScript.learningObjectives.map((objective, index) => (
+            <li key={index}>{objective}</li>
+          ))}
+        </ul>
+      </div>
 
-        {/* Introduction */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Introduction</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-        </div>
+      <div id="introduction" className="space-y-4">
+        <h3 className="text-lg font-semibold">Introduction</h3>
+        <div className="whitespace-pre-wrap">{rewrittenScript.introduction}</div>
+      </div>
 
-        {/* Main Content */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Main Content</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-        </div>
+      <div id="main-content" className="space-y-4">
+        <h3 className="text-lg font-semibold">Main Content</h3>
+        <div className="whitespace-pre-wrap">{rewrittenScript.mainContent}</div>
+      </div>
 
-        {/* Conclusion */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-        </div>
+      <div id="conclusion" className="space-y-4">
+        <h3 className="text-lg font-semibold">Conclusion</h3>
+        <div className="whitespace-pre-wrap">{rewrittenScript.conclusion}</div>
+      </div>
 
-        {/* Call to Action */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
-        </div>
-      </CardContent>
-    </Card>
+      <div id="call-to-action" className="space-y-4">
+        <h3 className="text-lg font-semibold">Call to Action</h3>
+        <div className="whitespace-pre-wrap">{rewrittenScript.callToAction}</div>
+      </div>
+    </div>
   );
 } 
