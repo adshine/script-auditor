@@ -48,7 +48,11 @@ export interface ScriptAnalysis {
     suggestions: string[];
     overallScore: number;
     prioritizedImprovements: string[];
-    sections: Record<string, Section>;
+    sections: {
+      introduction: Section;
+      mainContent?: Section;
+      conclusion?: Section;
+    };
   };
   rewrittenScript: RewrittenScript;
 }
@@ -101,16 +105,36 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
       throw new Error('No content in API response');
     }
 
-    // Try to parse the content as JSON to validate it early
-    try {
-      JSON.parse(content);
-    } catch (parseError) {
-      console.error('analyzeText: Response is not valid JSON:', content);
-      throw new Error('API response is not valid JSON');
-    }
+    console.log('analyzeText: Raw content received:', content);
 
-    console.log('analyzeText: Successfully validated JSON response');
-    return content;
+    // Try to parse the content as JSON to validate it early
+    let parsedContent;
+    try {
+      // First clean the content of any markdown formatting or extra whitespace
+      const cleanContent = content
+        .replace(/^```json\s*/, '')
+        .replace(/\s*```$/, '')
+        .trim();
+      
+      console.log('analyzeText: Cleaned content:', cleanContent);
+      parsedContent = JSON.parse(cleanContent);
+      
+      // Additional validation of the parsed content
+      if (!parsedContent || typeof parsedContent !== 'object') {
+        throw new Error('Parsed content is not an object');
+      }
+      
+      if (!parsedContent.analysis || !parsedContent.rewrittenScript) {
+        throw new Error('Missing required top-level fields');
+      }
+      
+      console.log('analyzeText: Successfully parsed and validated JSON');
+      return cleanContent;
+    } catch (parseError) {
+      console.error('analyzeText: JSON parse error:', parseError);
+      console.error('analyzeText: Failed content:', content);
+      throw new Error(`API response is not valid JSON: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('analyzeText: OpenRouter API error details:', {

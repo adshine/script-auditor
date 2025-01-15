@@ -60,10 +60,34 @@ export async function POST(request: Request) {
         );
       }
 
-      if (!analysis.analysis || !analysis.rewrittenScript) {
-        console.error('API Route: Missing required fields in analysis:', analysis);
+      // Validate required fields and their types
+      const { analysis: analysisData, rewrittenScript } = analysis;
+      if (!analysisData || !rewrittenScript || typeof analysisData !== 'object' || typeof rewrittenScript !== 'object') {
+        console.error('API Route: Missing or invalid required fields in analysis:', analysis);
         return NextResponse.json(
-          { error: 'Invalid analysis result', details: 'Analysis result missing required fields' },
+          { error: 'Invalid analysis result', details: 'Analysis result missing or has invalid required fields' },
+          { status: 500 }
+        );
+      }
+
+      // Validate analysis fields
+      const requiredAnalysisFields = ['technicalTerms', 'readabilityScore', 'suggestions', 'overallScore', 'prioritizedImprovements', 'sections'];
+      const missingAnalysisFields = requiredAnalysisFields.filter(field => !(field in analysisData));
+      if (missingAnalysisFields.length > 0) {
+        console.error('API Route: Missing analysis fields:', missingAnalysisFields);
+        return NextResponse.json(
+          { error: 'Invalid analysis result', details: `Missing required analysis fields: ${missingAnalysisFields.join(', ')}` },
+          { status: 500 }
+        );
+      }
+
+      // Validate rewrittenScript fields
+      const requiredRewrittenFields = ['learningObjectives', 'introduction', 'mainContent', 'conclusion', 'callToAction'];
+      const missingRewrittenFields = requiredRewrittenFields.filter(field => !(field in rewrittenScript));
+      if (missingRewrittenFields.length > 0) {
+        console.error('API Route: Missing rewrittenScript fields:', missingRewrittenFields);
+        return NextResponse.json(
+          { error: 'Invalid analysis result', details: `Missing required rewrittenScript fields: ${missingRewrittenFields.join(', ')}` },
           { status: 500 }
         );
       }
