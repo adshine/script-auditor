@@ -1,14 +1,14 @@
 export interface AIModel {
   id: string;
   name: string;
-  provider: 'Google' | 'Meta';
+  provider: string;
   description: string;
   contextWindow: number;
   paid: boolean;
   maxTokens: number;
   pricing?: {
-    input: number;  // Cost per million tokens for input
-    output: number; // Cost per million tokens for output
+    input: number;
+    output: number;
   };
 }
 

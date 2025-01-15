@@ -9,7 +9,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{rewrittenScript.title || 'Rewritten Script'}</CardTitle>
+        <CardTitle>Rewritten Script</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Learning Objectives */}

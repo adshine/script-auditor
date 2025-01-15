@@ -6,9 +6,30 @@ import { RootLayout } from '@/components/layout/root-layout';
 import { ScriptInputCard } from '@/components/features/script-analysis/script-input-card';
 import { ScriptAnalysisCard } from '@/components/features/script-analysis/script-analysis-card';
 import { RewrittenScriptCard } from '@/components/features/script-analysis/rewritten-script-card';
-import { analyzeScript } from '@/lib/api';
 import { availableModels } from '@/lib/models';
 import type { ScriptAnalysis } from '@/lib/api';
+
+async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ script, model }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Analysis failed: ${response.statusText}`);
+    }
+
+    const analysis: ScriptAnalysis = await response.json();
+    return analysis;
+  } catch (error) {
+    console.error('Error analyzing script:', error);
+    throw error;
+  }
+}
 
 export default function Home() {
   // Sort models by context window size and select the first one
@@ -24,7 +45,7 @@ export default function Home() {
     
     setLoading(true);
     try {
-      const result = await analyzeScript(script, selectedModel);
+      const result = await analyzeScriptAPI(script, selectedModel);
       setAnalysis(result);
       toast.success('Script analysis completed successfully');
     } catch (error) {

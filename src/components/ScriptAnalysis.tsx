@@ -1,6 +1,6 @@
 import { CheckCircleIcon, XCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import type { ScriptAnalysis as ScriptAnalysisType } from '@/lib/api';
+import type { ScriptAnalysis as ScriptAnalysisType, Section } from '@/lib/api';
 
 interface ScriptAnalysisProps {
   analysis: ScriptAnalysisType;
@@ -28,19 +28,19 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
         <CardContent>
           <div className="flex items-center gap-4 mb-6">
             <span className="text-muted-foreground">Overall Score:</span>
-            <ScoreIndicator score={analysis.overallScore} />
+            <ScoreIndicator score={analysis.analysis.overallScore} />
           </div>
           
           <h3 className="font-medium text-foreground mb-2">Priority Improvements:</h3>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-            {analysis.prioritizedImprovements.map((improvement, index) => (
+            {analysis.analysis.prioritizedImprovements.map((improvement: string, index: number) => (
               <li key={index}>{improvement}</li>
             ))}
           </ul>
         </CardContent>
       </Card>
 
-      {Object.entries(analysis.sections).map(([sectionName, section]) => (
+      {Object.entries(analysis.analysis.sections).map(([sectionName, section]: [string, Section]) => (
         <Card key={sectionName}>
           <CardHeader>
             <CardTitle className="capitalize">
@@ -57,7 +57,7 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
               <div>
                 <h3 className="font-medium text-foreground mb-2">Suggestions:</h3>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                  {section.suggestions.map((suggestion, index) => (
+                  {section.suggestions.map((suggestion: string, index: number) => (
                     <li key={index}>{suggestion}</li>
                   ))}
                 </ul>
@@ -72,7 +72,7 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
                     <div>
                       <p>Technical Terms Used:</p>
                       <ul className="list-disc list-inside ml-4">
-                        {section.readabilityMetrics.technicalTerms.map((term, index) => (
+                        {section.readabilityMetrics.technicalTerms.map((term: string, index: number) => (
                           <li key={index}>{term}</li>
                         ))}
                       </ul>
