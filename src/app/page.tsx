@@ -90,26 +90,31 @@ export default function Home() {
         Script Auditor
       </h1>
       
-      <div className="space-y-8">
-        <ScriptInputCard
-          script={script}
-          onScriptChange={setScript}
-          onAnalyze={handleAnalyze}
-          loading={loading}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-          showFreeOnly={showFreeOnly}
-          onShowFreeOnlyChange={setShowFreeOnly}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 h-[calc(100vh-12rem)]">
+        <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="flex-none">
+            <ScriptInputCard
+              script={script}
+              onScriptChange={setScript}
+              onAnalyze={handleAnalyze}
+              loading={loading}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              showFreeOnly={showFreeOnly}
+              onShowFreeOnlyChange={setShowFreeOnly}
+            />
+          </div>
 
-        {analysis && (
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-            <div className="lg:col-span-3">
+          {analysis && (
+            <div className="flex-1 overflow-auto">
               <ScriptAnalysisCard analysis={analysis.analysis} />
             </div>
-            <div className="lg:col-span-7">
-              <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
-            </div>
+          )}
+        </div>
+
+        {analysis && (
+          <div className="lg:col-span-6 h-full overflow-auto">
+            <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
           </div>
         )}
       </div>
