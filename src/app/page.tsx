@@ -19,14 +19,39 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
       body: JSON.stringify({ script, model }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error(`Analysis failed: ${response.statusText}`);
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        details: data.details || 'No additional details provided'
+      });
+      throw new Error(data.details || `Analysis failed: ${response.statusText}`);
     }
 
-    const analysis: ScriptAnalysis = await response.json();
-    return analysis;
+    // Validate response structure
+    if (!data || typeof data !== 'object') {
+      console.error('Invalid API response structure:', data);
+      throw new Error('Invalid API response structure');
+    }
+
+    if (!data.analysis || !data.rewrittenScript) {
+      console.error('Missing required fields in API response:', data);
+      throw new Error('API response missing required fields');
+    }
+
+    return data;
   } catch (error) {
     console.error('Error analyzing script:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+    }
     throw error;
   }
 }
@@ -41,7 +66,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const handleAnalyze = async () => {
-    if (!script.trim()) return;
+    if (!script.trim()) {
+      toast.error('Please enter a script to analyze');
+      return;
+    }
     
     setLoading(true);
     try {
@@ -50,7 +78,7 @@ export default function Home() {
       toast.success('Script analysis completed successfully');
     } catch (error) {
       console.error('Error analyzing script:', error);
-      toast.error('Failed to analyze script. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to analyze script. Please try again.');
     } finally {
       setLoading(false);
     }

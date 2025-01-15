@@ -1,20 +1,37 @@
 import { CheckCircleIcon, XCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { ScriptAnalysis as ScriptAnalysisType, Section } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface ScriptAnalysisProps {
   analysis: ScriptAnalysisType;
 }
 
 const ScoreIndicator = ({ score }: { score: number }) => {
-  const Icon = score >= 8 ? CheckCircleIcon : score >= 6 ? ExclamationTriangleIcon : XCircleIcon;
-  const color = score >= 8 ? 'text-green-500' : score >= 6 ? 'text-yellow-500' : 'text-red-500';
+  const Icon = score >= 9 ? CheckCircleIcon : score >= 8 ? ExclamationTriangleIcon : XCircleIcon;
+  const color = score >= 9 ? 'text-green-500' : score >= 8 ? 'text-blue-500' : 'text-red-500';
   
   return (
     <div className={`flex items-center gap-2 ${color}`}>
       <Icon className="h-5 w-5" />
       <span className="font-semibold">{score.toFixed(1)}/10</span>
     </div>
+  );
+};
+
+const Suggestion = ({ text }: { text: string }) => {
+  const isImplemented = text.includes('[IMPLEMENTED]');
+  const cleanText = text.replace('[IMPLEMENTED]', '').trim();
+  
+  return (
+    <li className={cn(
+      "text-sm flex items-start gap-2",
+      isImplemented ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+    )}>
+      {isImplemented && <Badge variant="default" className="mt-0.5 bg-green-500 hover:bg-green-600">Implemented</Badge>}
+      <span>{cleanText}</span>
+    </li>
   );
 };
 
@@ -32,9 +49,9 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
           </div>
           
           <h3 className="font-medium text-foreground mb-2">Priority Improvements:</h3>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <ul className="space-y-2">
             {analysis.analysis.prioritizedImprovements.map((improvement: string, index: number) => (
-              <li key={index}>{improvement}</li>
+              <Suggestion key={index} text={improvement} />
             ))}
           </ul>
         </CardContent>
@@ -56,9 +73,9 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
             <div className="space-y-4">
               <div>
                 <h3 className="font-medium text-foreground mb-2">Suggestions:</h3>
-                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                <ul className="space-y-2">
                   {section.suggestions.map((suggestion: string, index: number) => (
-                    <li key={index}>{suggestion}</li>
+                    <Suggestion key={index} text={suggestion} />
                   ))}
                 </ul>
               </div>

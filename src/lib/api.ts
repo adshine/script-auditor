@@ -63,7 +63,7 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
       throw new Error('API key not configured');
     }
 
-    console.log('analyzeText: Making request to OpenRouter API');
+    console.log('analyzeText: Making request to OpenRouter API with model:', model);
     const response = await axios.post<OpenRouterResponse>(
       'https://openrouter.ai/api/v1/chat/completions',
       {
@@ -74,17 +74,20 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
             content: prompt,
           },
         ],
+        max_tokens: 4000,
+        temperature: 0.7,
       },
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': 'https://script-auditor.vercel.app',
+          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
           'X-Title': 'Script Auditor',
         },
       }
     );
 
     console.log('analyzeText: Received response from OpenRouter API');
+    console.log('analyzeText: Response status:', response.status);
     console.log('analyzeText: Response data:', JSON.stringify(response.data, null, 2));
 
     if (!response.data || !response.data.choices || !response.data.choices.length) {
@@ -110,13 +113,17 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
         config: {
           url: error.config?.url,
           method: error.config?.method,
-          headers: error.config?.headers,
+          headers: {
+            ...error.config?.headers,
+            'Authorization': '***' // Hide API key in logs
+          }
         }
       });
+      throw new Error(`OpenRouter API error: ${error.response?.data?.error || error.message}`);
     } else {
       console.error('analyzeText: Unexpected error:', error);
+      throw error;
     }
-    throw error;
   }
 }
 
@@ -125,16 +132,24 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
   
   try {
     const prompt = `
-      Analyze this tutorial script and provide:
-      1. Technical terms used
-      2. Readability score (0-10)
-      3. Suggestions for improvement
-      4. A rewritten version with:
-         - Clear learning objectives
-         - Engaging introduction
-         - Well-structured main content
-         - Strong conclusion
-         - Clear call to action
+      Analyze this script that will be performed by the user's trained AI avatar (using their voice and image) in a video tutorial. 
+      DO NOT add any AI introductions or statements like "I'm your AI guide" - the avatar is already trained with the user's persona.
+      
+      Consider:
+      - Natural, conversational tone matching the user's style
+      - Clear pauses and emphasis points
+      - Engaging delivery style
+      - Visual cue moments
+      
+      Provide:
+      1. Technical terms used (highlight terms that need visual emphasis)
+      2. Readability score (8.0-10.0, optimized for spoken delivery)
+      3. Specific improvements for delivery and pacing
+      4. A rewritten version that:
+         - Starts directly with the content (no AI/guide introductions)
+         - Uses natural pauses and emphasis
+         - Includes visual cue markers [VISUAL CUE] for graphics/demos
+         - Maintains the user's speaking style
 
       Script:
       ${script}
@@ -143,17 +158,29 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
       {
         "analysis": {
           "technicalTerms": ["term1", "term2", ...],
-          "readabilityScore": number,
-          "suggestions": ["suggestion1", "suggestion2", ...],
-          "overallScore": number,
-          "prioritizedImprovements": ["improvement1", "improvement2", ...]
+          "readabilityScore": number (between 8.0 and 10.0),
+          "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2", ...],
+          "overallScore": number (between 8.0 and 10.0),
+          "prioritizedImprovements": ["improvement1", "improvement2", ...],
+          "sections": {
+            "introduction": {
+              "score": number,
+              "suggestions": ["suggestion1", "suggestion2"],
+              "readabilityMetrics": {
+                "fleschKincaid": number,
+                "wordsPerSentence": number,
+                "technicalTerms": ["term1", "term2"]
+              },
+              "aiEnhancements": "text with [VISUAL CUE] markers"
+            }
+          }
         },
         "rewrittenScript": {
           "learningObjectives": ["objective1", "objective2", ...],
-          "introduction": "text",
-          "mainContent": "text",
-          "conclusion": "text",
-          "callToAction": "text"
+          "introduction": "text with [VISUAL CUE] markers (no AI introductions)",
+          "mainContent": "text with [VISUAL CUE] markers",
+          "conclusion": "text with [VISUAL CUE] markers",
+          "callToAction": "text with [VISUAL CUE] markers"
         }
       }
     `;
