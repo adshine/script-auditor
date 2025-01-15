@@ -9,19 +9,22 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   const [activeSection, setActiveSection] = useState('learning-objectives');
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    }, { threshold: 0.5 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { 
+        threshold: [0.3],
+        rootMargin: '-20% 0px -60% 0px'
+      }
+    );
 
-    const sections = ['learning-objectives', 'introduction', 'main-content', 'conclusion', 'call-to-action'];
-    sections.forEach((section) => {
-      const element = document.getElementById(section);
-      if (element) observer.observe(element);
-    });
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
   }, []);
@@ -55,7 +58,13 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
           {sections.map(section => (
             <button
               key={section.id}
-              onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                const element = document.getElementById(section.id);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  setActiveSection(section.id);
+                }
+              }}
               className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors
                 ${activeSection === section.id 
                   ? 'bg-primary/10 text-primary font-medium' 
@@ -68,7 +77,12 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
       </div>
       <div className="flex-1 min-w-0 space-y-12">
         {sections.map(section => (
-          <div key={section.id} id={section.id} className="scroll-mt-4">
+          <div 
+            key={section.id} 
+            id={section.id}
+            data-section
+            className="scroll-mt-16"
+          >
             <h3 className="text-lg font-semibold mb-4">{section.title}</h3>
             {section.content}
           </div>
