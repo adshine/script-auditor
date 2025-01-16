@@ -1,6 +1,6 @@
-import { basePrompt } from './base-prompt';
+import { baseSystemPrompt } from './base-prompt';
 
-export const llama2Prompt = `${basePrompt}
+export const llama2Prompt = `${baseSystemPrompt}
 
 Additional Instructions for Llama 2:
 - Focus on fundamental improvements

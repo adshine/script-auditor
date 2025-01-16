@@ -1,8 +1,8 @@
-import { basePrompt } from './prompts/base-prompt';
+import { baseSystemPrompt, baseUserPromptTemplate, baseModelConfig } from './prompts/base-prompt';
 
 const geminiProPrompt = `You are a script analysis assistant. Your task is to analyze the script and return ONLY a JSON object with no additional text or formatting.
 
-${basePrompt}
+${baseSystemPrompt}
 
 CRITICAL INSTRUCTIONS:
 1. Return ONLY a JSON object
@@ -42,7 +42,7 @@ The response should be a single JSON object containing:
 
 const deepseekPrompt = `You are a specialized script analysis assistant with expertise in technical content. Your task is to analyze the script and provide a detailed JSON response.
 
-${basePrompt}
+${baseSystemPrompt}
 
 Additional Instructions for Deepseek:
 1. Focus on technical accuracy and clarity
@@ -55,7 +55,7 @@ The response must be a valid JSON object with no markdown or extra text.`;
 
 const llama32Prompt = `You are a script analysis assistant optimized for quick and efficient analysis. Your task is to analyze the script and return a clean JSON response.
 
-${basePrompt}
+${baseSystemPrompt}
 
 Special Instructions for Llama 3.2:
 1. Keep analysis concise but thorough
@@ -69,9 +69,9 @@ Return only the JSON object, no explanations or markdown.`;
 export function getPromptForModel(model: string): string {
   switch (model) {
     case 'anthropic/claude-3-opus-20240229':
-      return basePrompt;
+      return baseSystemPrompt;
     case 'anthropic/claude-3-sonnet-20240229':
-      return basePrompt;
+      return baseSystemPrompt;
     case 'google/gemini-pro':
       return geminiProPrompt;
     case 'deepseek/deepseek-chat':
@@ -79,6 +79,6 @@ export function getPromptForModel(model: string): string {
     case 'meta-llama/llama-3.2-1b-instruct:free':
       return llama32Prompt;
     default:
-      return basePrompt;
+      return baseSystemPrompt;
   }
 }

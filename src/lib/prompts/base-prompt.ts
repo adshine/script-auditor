@@ -1,78 +1,56 @@
-export const basePrompt = `
-As an experienced script writer and instructional designer, analyze and enhance this script that will be performed by the user's trained AI avatar.
-DO NOT add any AI introductions - the avatar is already trained with the user's persona.
+export interface ModelPrompt {
+  systemPrompt: string;
+  userPromptTemplate: (script: string) => string;
+  temperature: number;
+  maxTokens: number;
+  topP: number;
+  presencePenalty: number;
+  frequencyPenalty: number;
+}
 
-Evaluate and improve the script based on these key areas:
+export const baseSystemPrompt = `You are an expert educational content creator specializing in creating clear, engaging, and well-structured learning materials. Your task is to analyze and improve educational scripts.
 
-1. Engagement & Structure:
-   - Hook and attention-grabbing opening
-   - Clear learning objectives
-   - Logical flow and transitions
-   - Effective conclusion and call-to-action
-   - Knowledge check points
-
-2. Delivery & Pacing:
-   - Natural conversational tone
-   - Strategic pauses for emphasis
-   - Varied sentence lengths
-   - Chunked information
-   - Clear transitions between topics
-
-3. Visual Integration:
-   - Visual cue markers [VISUAL CUE] for demos/graphics
-   - Emphasis points for key concepts
-   - Opportunities for on-screen text
-   - Visual metaphors and examples
-   - Data visualization moments
-
-4. Instructional Design:
-   - Progressive complexity
-   - Real-world examples
-   - Practice opportunities
-   - Memory retention techniques
-   - Active learning prompts
-
-5. Accessibility & Clarity:
-   - Simple language for complex concepts
-   - Defined technical terms
-   - Consistent terminology
-   - Cultural sensitivity
-   - Inclusive language
-
-For each improvement made, mark it with [IMPLEMENTED] to track progress.
-
-Script to analyze:
-{script}
-
-Respond in JSON format:
+Your output must be a valid JSON object that follows this exact structure:
 {
   "analysis": {
-    "technicalTerms": ["term1", "term2", ...],
-    "readabilityScore": number (between 8.0 and 10.0),
-    "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2", ...],
-    "overallScore": number (between 8.0 and 10.0),
-    "prioritizedImprovements": ["improvement1 [IMPLEMENTED]", "improvement2", ...],
+    "technicalTerms": string[],       // List of technical terms used
+    "readabilityScore": number,       // Score between 1-10
+    "suggestions": string[],          // List of specific improvements
+    "overallScore": number,          // Score between 1-10
+    "prioritizedImprovements": string[], // Ordered list of improvements
     "sections": {
       "introduction": {
-        "score": number,
-        "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2"],
+        "score": number,             // Score between 1-10
+        "suggestions": string[],     // Section-specific improvements
         "readabilityMetrics": {
-          "fleschKincaid": number,
-          "wordsPerSentence": number,
-          "technicalTerms": ["term1", "term2"]
-        },
-        "aiEnhancements": "text with [VISUAL CUE] markers"
+          "fleschKincaid": number,   // Standard Flesch-Kincaid score
+          "wordsPerSentence": number, // Average words per sentence
+          "technicalTerms": string[] // Technical terms in this section
+        }
       }
     }
   },
   "rewrittenScript": {
-    "learningObjectives": ["objective1", "objective2", ...],
-    "introduction": "text with [VISUAL CUE] markers (no AI introductions)",
-    "mainContent": "text with [VISUAL CUE] markers",
-    "conclusion": "text with [VISUAL CUE] markers",
-    "callToAction": "text with [VISUAL CUE] markers"
+    "learningObjectives": string[],  // Clear, measurable objectives
+    "introduction": string,          // Engaging opening
+    "mainContent": string,           // Well-structured content
+    "conclusion": string,            // Clear summary
+    "callToAction": string          // Actionable next steps
   }
-}
+}`;
 
-Ensure each improvement is clearly marked [IMPLEMENTED] when applied in the rewritten script.
-The rewritten script should achieve a readability score of at least 8.0 and incorporate all the marked improvements.`; 
+export const baseUserPromptTemplate = (script: string) => 
+  `Analyze and rewrite this educational script to be more engaging and effective. Focus on clarity, structure, and maintaining the educational value while making it more conversational and easier to follow.
+
+Original script:
+${script}
+
+Return a JSON object with your analysis and rewritten version. Ensure all content is detailed and complete.`;
+
+export const baseModelConfig = {
+  temperature: 0.3,
+  maxTokens: 4000,
+  topP: 0.2,
+  presencePenalty: 0.0,
+  frequencyPenalty: 0.0
+}; 

@@ -9,6 +9,14 @@ export interface AIModel {
 
 export const availableModels: AIModel[] = [
   {
+    id: 'gryphe/mythomax-l2-13b:free',
+    name: 'MythoMax 13B',
+    provider: 'Gryphe',
+    description: 'One of the highest performing and most popular fine-tunes of Llama 2 13B',
+    contextWindow: 4096,
+    isFree: true
+  },
+  {
     id: 'anthropic/claude-3-opus-20240229',
     name: 'Claude 3 Opus',
     provider: 'Anthropic',

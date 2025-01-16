@@ -1,6 +1,6 @@
-import { basePrompt } from './base-prompt';
+import { baseSystemPrompt } from './base-prompt';
 
-export const geminiFlashThinkingPrompt = `${basePrompt}
+export const geminiFlashThinkingPrompt = `${baseSystemPrompt}
 
 Additional Instructions for Gemini Flash Thinking:
 - Optimize for quick, efficient analysis
