@@ -21,37 +21,36 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
     });
 
     const data = await response.json();
+    console.log('API Response:', data); // Log the full response
 
     if (!response.ok) {
+      const errorMessage = data.error || data.message || data.details || response.statusText || 'Analysis failed';
       console.error('API Error:', {
         status: response.status,
         statusText: response.statusText,
-        data,
-        details: data.details || 'No additional details provided'
+        error: errorMessage,
+        data
       });
-      throw new Error(data.details || `Analysis failed: ${response.statusText}`);
+      throw new Error(errorMessage);
     }
 
+    // Validate the response structure
     if (!data || typeof data !== 'object') {
-      console.error('Invalid API response structure:', data);
       throw new Error('Invalid API response structure');
     }
 
+    // Check if we have the expected data structure
     if (!data.analysis || !data.rewrittenScript) {
-      console.error('Missing required fields in API response:', data);
-      throw new Error('API response missing required fields');
+      console.error('Invalid response structure:', data);
+      throw new Error('Invalid response structure from API');
     }
 
-    return data;
+    return {
+      analysis: data.analysis,
+      rewrittenScript: data.rewrittenScript
+    };
   } catch (error) {
     console.error('Error analyzing script:', error);
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-    }
     throw error;
   }
 }
@@ -64,6 +63,7 @@ export default function Home() {
   const [script, setScript] = useState('');
   const [greeting, setGreeting] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hasAnalysis, setHasAnalysis] = useState(false);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -74,6 +74,10 @@ export default function Home() {
     } else {
       setGreeting('Good Evening');
     }
+
+    // Check if there's a pending analysis
+    const pendingAnalysis = localStorage.getItem('pendingAnalysis');
+    setHasAnalysis(!!pendingAnalysis);
   }, []);
 
   const handleAnalyze = async () => {
@@ -84,13 +88,28 @@ export default function Home() {
     setLoading(true);
     try {
       const result = await analyzeScriptAPI(script, selectedModel);
+      
+      // Store the data in localStorage
+      const analysisData = {
+        script,
+        analysis: result,
+        model: selectedModel,
+        timestamp: new Date().toISOString()
+      };
+      
       localStorage.setItem('pendingScript', script);
-      localStorage.setItem('pendingAnalysis', JSON.stringify(result));
+      localStorage.setItem('pendingAnalysis', JSON.stringify(analysisData));
       localStorage.setItem('selectedModel', selectedModel);
+      setHasAnalysis(true);
+      
+      // Navigate after ensuring data is stored
       router.push('/analysis');
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze script. Please try again.';
+      console.error('Analysis error:', error);
+      toast.error(errorMessage);
+    } finally {
       setLoading(false);
-      toast.error(error instanceof Error ? error.message : 'Failed to analyze script. Please try again.');
     }
   };
 
@@ -99,7 +118,7 @@ export default function Home() {
       <div className="h-full flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-2xl space-y-8">
           <h1 className="text-4xl font-bold text-center">
-            {greeting}, Adebimpe
+            {greeting}
           </h1>
           
           <div className="space-y-4">
@@ -117,14 +136,36 @@ export default function Home() {
               placeholder="Paste your tutorial script here..."
               className="min-h-[200px] resize-none text-lg p-4"
             />
-            <Button 
-              onClick={handleAnalyze}
-              disabled={!script.trim() || loading}
-              className="w-full bg-green-500 hover:bg-green-600"
-              size="lg"
-            >
-              {loading ? 'Analyzing...' : 'Analyze Script'}
-            </Button>
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <Button 
+                  onClick={handleAnalyze}
+                  disabled={!script.trim() || loading}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                  size="lg"
+                >
+                  {loading ? 'Analyzing...' : 'Analyze Script'}
+                </Button>
+                {hasAnalysis && (
+                  <Button
+                    onClick={() => router.push('/analysis')}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    View Last Analysis
+                  </Button>
+                )}
+              </div>
+              <Button
+                onClick={() => router.push('/analysis')}
+                variant="secondary"
+                size="lg"
+                className="w-full"
+              >
+                Go to Results Page
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -21,167 +21,100 @@ interface ScriptAnalysisCardProps {
   };
 }
 
-export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
+export function ScriptAnalysisCard({ analysis }: { analysis: any }) {
   return (
-    <Accordion type="multiple" className="space-y-4">
-      <AccordionItem value="score" className="border-b-0">
-        <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-          Overall Score
-        </AccordionTrigger>
-        <AccordionContent>
-          <p className="text-4xl font-bold">{analysis.overallScore.toFixed(1)}</p>
-        </AccordionContent>
-      </AccordionItem>
+    <div className="space-y-6">
+      <div>
+        <h4 className="font-medium mb-2">Score</h4>
+        <p className="text-4xl font-bold">{analysis?.overallScore?.toFixed(1) || 'N/A'}</p>
+      </div>
 
-      <AccordionItem value="terms" className="border-b-0">
-        <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-          Technical Terms
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="flex flex-wrap gap-2">
-            {analysis.technicalTerms.map((term, index) => (
-              <span key={index} className="px-2 py-1 bg-muted rounded-md text-base">
-                {term}
-              </span>
-            ))}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+      <div>
+        <h4 className="font-medium mb-2">Technical Terms</h4>
+        <div className="flex flex-wrap gap-2">
+          {analysis?.technicalTerms?.map((term: string, index: number) => (
+            <span
+              key={index}
+              className="px-2 py-1 bg-muted rounded-md text-sm"
+            >
+              {term}
+            </span>
+          )) || 'No technical terms found'}
+        </div>
+      </div>
 
-      <AccordionItem value="introduction" className="border-b-0">
-        <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-          Introduction Analysis
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium mb-2">Score</h4>
-              <p className="text-4xl font-bold">{analysis.sections.introduction.score.toFixed(1)}</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Suggestions</h4>
-              <ul className="list-disc pl-6 space-y-2">
-                {analysis.sections.introduction.suggestions.map((item, index) => (
-                  <li key={index} className="text-base">{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Readability Metrics</h4>
-              <div className="space-y-2">
-                <p>Flesch-Kincaid: {analysis.sections.introduction.readabilityMetrics.fleschKincaid.toFixed(1)}</p>
-                <p>Words per Sentence: {analysis.sections.introduction.readabilityMetrics.wordsPerSentence.toFixed(1)}</p>
-              </div>
-            </div>
-            {analysis.sections.introduction.aiEnhancements && (
-              <div>
-                <h4 className="font-medium mb-2">AI Enhancements</h4>
-                <p className="whitespace-pre-wrap">{analysis.sections.introduction.aiEnhancements}</p>
-              </div>
-            )}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+      <div>
+        <h4 className="font-medium mb-2">Readability Score</h4>
+        <p className="text-4xl font-bold">{analysis?.readabilityScore?.toFixed(1) || 'N/A'}</p>
+      </div>
 
-      {analysis.sections.mainContent && (
-        <AccordionItem value="main-content" className="border-b-0">
-          <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-            Main Content Analysis
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
+      <div>
+        <h4 className="font-medium mb-2">Suggestions</h4>
+        <ul className="list-disc pl-4 space-y-2">
+          {analysis?.suggestions?.map((suggestion: string, index: number) => (
+            <li key={index}>{suggestion}</li>
+          )) || <li>No suggestions available</li>}
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-2">Prioritized Improvements</h4>
+        <ul className="list-disc pl-4 space-y-2">
+          {analysis?.prioritizedImprovements?.map((improvement: string, index: number) => (
+            <li key={index}>{improvement}</li>
+          )) || <li>No improvements suggested</li>}
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-2">Section Analysis</h4>
+        <div className="space-y-4">
+          {Object.entries(analysis?.sections || {}).map(([sectionName, section]: [string, any]) => (
+            <div key={sectionName} className="border rounded-lg p-4">
               <div>
-                <h4 className="font-medium mb-2">Score</h4>
-                <p className="text-4xl font-bold">{analysis.sections.mainContent.score.toFixed(1)}</p>
+                <h4 className="font-medium mb-2">{sectionName}</h4>
+                <p className="text-4xl font-bold">{section?.score?.toFixed(1) || 'N/A'}</p>
               </div>
-              <div>
-                <h4 className="font-medium mb-2">Suggestions</h4>
-                <ul className="list-disc pl-6 space-y-2">
-                  {analysis.sections.mainContent.suggestions.map((item, index) => (
-                    <li key={index} className="text-base">{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Readability Metrics</h4>
-                <div className="space-y-2">
-                  <p>Flesch-Kincaid: {analysis.sections.mainContent.readabilityMetrics.fleschKincaid.toFixed(1)}</p>
-                  <p>Words per Sentence: {analysis.sections.mainContent.readabilityMetrics.wordsPerSentence.toFixed(1)}</p>
+
+              {section?.suggestions && section.suggestions.length > 0 && (
+                <div className="mt-4">
+                  <h5 className="font-medium mb-2">Section Suggestions</h5>
+                  <ul className="list-disc pl-4 space-y-2">
+                    {section.suggestions.map((suggestion: string, index: number) => (
+                      <li key={index}>{suggestion}</li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-              {analysis.sections.mainContent.aiEnhancements && (
-                <div>
-                  <h4 className="font-medium mb-2">AI Enhancements</h4>
-                  <p className="whitespace-pre-wrap">{analysis.sections.mainContent.aiEnhancements}</p>
+              )}
+
+              {section?.readabilityMetrics && (
+                <div className="mt-4">
+                  <h5 className="font-medium mb-2">Readability Metrics</h5>
+                  <div className="space-y-2">
+                    <p>Flesch-Kincaid: {section.readabilityMetrics.fleschKincaid || 'N/A'}</p>
+                    <p>Words per Sentence: {section.readabilityMetrics.wordsPerSentence || 'N/A'}</p>
+                    {section.readabilityMetrics.technicalTerms && section.readabilityMetrics.technicalTerms.length > 0 && (
+                      <div>
+                        <p className="mb-1">Technical Terms:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {section.readabilityMetrics.technicalTerms.map((term: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-muted rounded-md text-sm"
+                            >
+                              {term}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      )}
-
-      {analysis.sections.conclusion && (
-        <AccordionItem value="conclusion" className="border-b-0">
-          <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-            Conclusion Analysis
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">Score</h4>
-                <p className="text-4xl font-bold">{analysis.sections.conclusion.score.toFixed(1)}</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Suggestions</h4>
-                <ul className="list-disc pl-6 space-y-2">
-                  {analysis.sections.conclusion.suggestions.map((item, index) => (
-                    <li key={index} className="text-base">{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2">Readability Metrics</h4>
-                <div className="space-y-2">
-                  <p>Flesch-Kincaid: {analysis.sections.conclusion.readabilityMetrics.fleschKincaid.toFixed(1)}</p>
-                  <p>Words per Sentence: {analysis.sections.conclusion.readabilityMetrics.wordsPerSentence.toFixed(1)}</p>
-                </div>
-              </div>
-              {analysis.sections.conclusion.aiEnhancements && (
-                <div>
-                  <h4 className="font-medium mb-2">AI Enhancements</h4>
-                  <p className="whitespace-pre-wrap">{analysis.sections.conclusion.aiEnhancements}</p>
-                </div>
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      )}
-
-      <AccordionItem value="suggestions" className="border-b-0">
-        <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-          Improvement Suggestions
-        </AccordionTrigger>
-        <AccordionContent>
-          <ul className="list-disc pl-6 space-y-2">
-            {analysis.suggestions.map((suggestion, index) => (
-              <li key={index} className="text-base">{suggestion}</li>
-            ))}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="priorities" className="border-b-0">
-        <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-          Prioritized Improvements
-        </AccordionTrigger>
-        <AccordionContent>
-          <ul className="list-disc pl-6 space-y-2">
-            {analysis.prioritizedImprovements.map((improvement, index) => (
-              <li key={index} className="text-base">{improvement}</li>
-            ))}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 } 

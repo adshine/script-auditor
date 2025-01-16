@@ -33,10 +33,18 @@ export const availableModels: AIModel[] = [
     isFree: true
   },
   {
-    id: 'meta-llama/llama-2-70b-chat',
-    name: 'Llama 2 70B',
+    id: 'deepseek/deepseek-chat',
+    name: 'Deepseek Chat',
+    provider: 'Deepseek',
+    description: 'Specialized in technical analysis and detailed explanations',
+    contextWindow: 32000,
+    isFree: true
+  },
+  {
+    id: 'meta-llama/llama-3.2-1b-instruct:free',
+    name: 'Llama 3.2 Instruct',
     provider: 'Meta',
-    description: 'Open source model with broad capabilities',
+    description: 'Fast and efficient instruction-following model',
     contextWindow: 4096,
     isFree: true
   }

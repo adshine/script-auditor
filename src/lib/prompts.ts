@@ -40,6 +40,32 @@ The response should be a single JSON object containing:
   }
 }`;
 
+const deepseekPrompt = `You are a specialized script analysis assistant with expertise in technical content. Your task is to analyze the script and provide a detailed JSON response.
+
+${basePrompt}
+
+Additional Instructions for Deepseek:
+1. Focus on technical accuracy and clarity
+2. Provide detailed, actionable suggestions
+3. Ensure thorough readability analysis
+4. Maintain precise JSON formatting
+5. Return only the JSON object, no additional text
+
+The response must be a valid JSON object with no markdown or extra text.`;
+
+const llama32Prompt = `You are a script analysis assistant optimized for quick and efficient analysis. Your task is to analyze the script and return a clean JSON response.
+
+${basePrompt}
+
+Special Instructions for Llama 3.2:
+1. Keep analysis concise but thorough
+2. Focus on essential improvements
+3. Prioritize clarity in suggestions
+4. Maintain strict JSON format
+5. No additional text or formatting
+
+Return only the JSON object, no explanations or markdown.`;
+
 export function getPromptForModel(model: string): string {
   switch (model) {
     case 'anthropic/claude-3-opus-20240229':
@@ -48,8 +74,10 @@ export function getPromptForModel(model: string): string {
       return basePrompt;
     case 'google/gemini-pro':
       return geminiProPrompt;
-    case 'meta-llama/llama-2-70b-chat':
-      return basePrompt;
+    case 'deepseek/deepseek-chat':
+      return deepseekPrompt;
+    case 'meta-llama/llama-3.2-1b-instruct:free':
+      return llama32Prompt;
     default:
       return basePrompt;
   }
