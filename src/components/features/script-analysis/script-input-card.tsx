@@ -25,7 +25,7 @@ export function ScriptInputCard({
   onShowFreeOnlyChange
 }: ScriptInputCardProps) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full p-0">
       <div className="border-b border-border">
         <div className="px-6 py-3">
           <h2 className="text-2xl font-semibold">Input Script</h2>

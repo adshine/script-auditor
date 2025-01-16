@@ -9,7 +9,7 @@ export interface AIModel {
 
 export const availableModels: AIModel[] = [
   {
-    id: 'anthropic/claude-3-opus',
+    id: 'anthropic/claude-3-opus-20240229',
     name: 'Claude 3 Opus',
     provider: 'Anthropic',
     description: 'Most capable model, best for complex tasks',
@@ -17,7 +17,7 @@ export const availableModels: AIModel[] = [
     isFree: false
   },
   {
-    id: 'anthropic/claude-3-sonnet',
+    id: 'anthropic/claude-3-sonnet-20240229',
     name: 'Claude 3 Sonnet',
     provider: 'Anthropic',
     description: 'Excellent balance of intelligence and speed',

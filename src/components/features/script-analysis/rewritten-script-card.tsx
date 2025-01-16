@@ -1,92 +1,83 @@
-import type { RewrittenScript } from '@/lib/api';
-import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { toast } from "sonner";
 
 interface RewrittenScriptCardProps {
-  rewrittenScript: RewrittenScript;
+  rewrittenScript: {
+    learningObjectives: string[];
+    introduction: string;
+    mainContent: string;
+    conclusion: string;
+    callToAction: string;
+  };
 }
 
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
-  const [activeSection, setActiveSection] = useState('learning-objectives');
+  const handleCopy = () => {
+    const fullScript = `Learning Objectives:
+${rewrittenScript.learningObjectives.map(obj => `- ${obj}`).join('\n')}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { 
-        threshold: [0.3],
-        rootMargin: '-20% 0px -60% 0px'
-      }
-    );
+Introduction:
+${rewrittenScript.introduction}
 
-    const sections = document.querySelectorAll('[data-section]');
-    sections.forEach((section) => observer.observe(section));
+Main Content:
+${rewrittenScript.mainContent}
 
-    return () => observer.disconnect();
-  }, []);
+Conclusion:
+${rewrittenScript.conclusion}
 
-  const sections = [
-    { id: 'learning-objectives', title: 'Learning Objectives', content: (
-      <ul className="list-disc pl-5 space-y-2">
-        {rewrittenScript.learningObjectives.map((objective, index) => (
-          <li key={index}>{objective}</li>
-        ))}
-      </ul>
-    )},
-    { id: 'introduction', title: 'Introduction', content: (
-      <div className="whitespace-pre-wrap">{rewrittenScript.introduction}</div>
-    )},
-    { id: 'main-content', title: 'Main Content', content: (
-      <div className="whitespace-pre-wrap">{rewrittenScript.mainContent}</div>
-    )},
-    { id: 'conclusion', title: 'Conclusion', content: (
-      <div className="whitespace-pre-wrap">{rewrittenScript.conclusion}</div>
-    )},
-    { id: 'call-to-action', title: 'Call to Action', content: (
-      <div className="whitespace-pre-wrap">{rewrittenScript.callToAction}</div>
-    )}
-  ];
+Call to Action:
+${rewrittenScript.callToAction}`;
+
+    navigator.clipboard.writeText(fullScript).then(() => {
+      toast.success('Script copied to clipboard');
+    }).catch(() => {
+      toast.error('Failed to copy script');
+    });
+  };
 
   return (
-    <div className="flex gap-8">
-      <div className="w-48 flex-none">
-        <div className="sticky top-0 space-y-2 pt-2">
-          {sections.map(section => (
-            <button
-              key={section.id}
-              onClick={() => {
-                const element = document.getElementById(section.id);
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  setActiveSection(section.id);
-                }
-              }}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors
-                ${activeSection === section.id 
-                  ? 'bg-primary/10 text-primary font-medium' 
-                  : 'hover:bg-muted'}`}
-            >
-              {section.title}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-8">
+      <div className="sticky top-0 bg-background z-10 border-b border-border px-6 py-3 flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Rewritten Script</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCopy}
+          className="flex items-center gap-2"
+        >
+          <DocumentDuplicateIcon className="h-4 w-4" />
+          Copy
+        </Button>
       </div>
-      <div className="flex-1 min-w-0 space-y-12">
-        {sections.map(section => (
-          <div 
-            key={section.id} 
-            id={section.id}
-            data-section
-            className="scroll-mt-16"
-          >
-            <h3 className="text-lg font-semibold mb-4">{section.title}</h3>
-            {section.content}
-          </div>
-        ))}
+
+      <div id="learning-objectives" className="space-y-2">
+        <h3 className="text-xl font-semibold">Learning Objectives</h3>
+        <ul className="list-disc pl-6 space-y-2 text-base">
+          {rewrittenScript.learningObjectives.map((objective, index) => (
+            <li key={index} className="text-base">{objective}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div id="introduction" className="space-y-2">
+        <h3 className="text-xl font-semibold">Introduction</h3>
+        <p className="text-base whitespace-pre-wrap">{rewrittenScript.introduction}</p>
+      </div>
+
+      <div id="main-content" className="space-y-2">
+        <h3 className="text-xl font-semibold">Main Content</h3>
+        <p className="text-base whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
+      </div>
+
+      <div id="conclusion" className="space-y-2">
+        <h3 className="text-xl font-semibold">Conclusion</h3>
+        <p className="text-base whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
+      </div>
+
+      <div id="call-to-action" className="space-y-2">
+        <h3 className="text-xl font-semibold">Call to Action</h3>
+        <p className="text-base whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
       </div>
     </div>
   );
