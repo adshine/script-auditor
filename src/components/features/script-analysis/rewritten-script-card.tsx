@@ -43,19 +43,8 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    if (element && contentRef.current) {
-      // Get the container's top position
-      const containerTop = contentRef.current.getBoundingClientRect().top + window.scrollY;
-      // Get the element's position relative to the container
-      const elementTop = element.getBoundingClientRect().top + window.scrollY;
-      // Calculate offset (80px for header + any additional spacing)
-      const offset = 100;
-      
-      window.scrollTo({
-        top: elementTop - offset,
-        behavior: 'smooth'
-      });
-      
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setActiveSection(sectionId);
     }
   };
@@ -88,7 +77,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   }, []);
 
   return (
-    <div>
+    <div className="relative">
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Rewritten Script</h2>
       </div>
@@ -108,38 +97,38 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
         
         <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
           {/* Learning Objectives */}
-          <div id="learning-objectives" className="scroll-mt-24">
+          <section id="learning-objectives" className="pt-4 scroll-mt-28">
             <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
             <ul className="list-disc pl-6 space-y-1">
               {rewrittenScript.learningObjectives.map((objective, index) => (
                 <li key={index} className="text-muted-foreground">{objective}</li>
               ))}
             </ul>
-          </div>
+          </section>
 
           {/* Introduction */}
-          <div id="introduction" className="scroll-mt-24">
+          <section id="introduction" className="pt-4 scroll-mt-28">
             <h3 className="font-medium text-foreground mb-2">Introduction</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-          </div>
+          </section>
 
           {/* Main Content */}
-          <div id="main-content" className="scroll-mt-24">
+          <section id="main-content" className="pt-4 scroll-mt-28">
             <h3 className="font-medium text-foreground mb-2">Main Content</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-          </div>
+          </section>
 
           {/* Conclusion */}
-          <div id="conclusion" className="scroll-mt-24">
+          <section id="conclusion" className="pt-4 scroll-mt-28">
             <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-          </div>
+          </section>
 
           {/* Call to Action */}
-          <div id="call-to-action" className="scroll-mt-24">
+          <section id="call-to-action" className="pt-4 scroll-mt-28">
             <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
-          </div>
+          </section>
         </div>
       </div>
     </div>
