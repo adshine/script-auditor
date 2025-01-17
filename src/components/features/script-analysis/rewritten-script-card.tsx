@@ -1,6 +1,8 @@
 import type { RewrittenScript } from '@/lib/api';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Copy, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface RewrittenScriptCardProps {
   rewrittenScript: RewrittenScript;
@@ -32,6 +34,7 @@ function SideTab({
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
+  const [copied, setCopied] = useState(false);
 
   const sections = [
     { id: "learning-objectives", label: "Learning Objectives" },
@@ -46,6 +49,32 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setActiveSection(sectionId);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    // Combine all content sections
+    const content = `Learning Objectives:
+${rewrittenScript.learningObjectives.map(obj => `• ${obj}`).join('\n')}
+
+Introduction:
+${rewrittenScript.introduction}
+
+Main Content:
+${rewrittenScript.mainContent}
+
+Conclusion:
+${rewrittenScript.conclusion}
+
+Call to Action:
+${rewrittenScript.callToAction}`;
+
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
     }
   };
 
@@ -78,8 +107,26 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   return (
     <div className="relative">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Rewritten Script</h2>
+      <div className="mb-6 flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Rewritten Script</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={copyToClipboard}
+        >
+          {copied ? (
+            <>
+              <Check className="h-4 w-4" />
+              <span>Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" />
+              <span>Copy All</span>
+            </>
+          )}
+        </Button>
       </div>
       <div className="flex gap-6">
         <div className="w-48 flex-shrink-0 hidden lg:block">
