@@ -107,9 +107,9 @@ ${rewrittenScript.callToAction}`;
 
   return (
     <div className="relative p-0">
-      <div className="sticky top-0 z-10 bg-background pt-4 pb-4 border-b">
+      <div className="sticky top-0 z-10 bg-background pt-2 pb-2 border-b">
         <div className="flex justify-between items-center sticky top-0 px-4">
-          <h2 className="text-xl font-semibold">Rewritten Script</h2>
+          <h2 className="text-l font-semibold">Rewritten Script</h2>
           <Button
             variant="outline"
             size="sm"
