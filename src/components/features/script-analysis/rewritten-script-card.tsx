@@ -1,4 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import type { RewrittenScript } from '@/lib/api';
 
 interface RewrittenScriptCardProps {
@@ -7,11 +6,11 @@ interface RewrittenScriptCardProps {
 
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Rewritten Script</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Rewritten Script</h2>
+      </div>
+      <div className="space-y-6">
         {/* Learning Objectives */}
         <div>
           <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
@@ -45,7 +44,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
           <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
           <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 } 

@@ -1,5 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { TechnicalTerms } from './technical-terms';
 import { Badge } from '@/components/ui/badge';
 import type { ScriptAnalysis } from '@/lib/api';
 import { Check, Circle } from "lucide-react";
@@ -46,11 +44,11 @@ function Suggestion({ text }: { text: string }) {
 
 export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Analysis</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Analysis</h2>
+      </div>
+      <div className="space-y-6">
         <div>
           <h3 className="font-semibold mb-2">Overall Score</h3>
           <ScoreIndicator score={analysis.overallScore} />
@@ -86,7 +84,7 @@ export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 } 

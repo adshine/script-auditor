@@ -87,23 +87,23 @@ export default function AnalyzePage() {
   return (
     <RootLayout>
       {/* Nav Bar */}
-      <nav className="w-full h-12 border-b">
+      <nav className="w-full h-12 border-b fixed top-0 bg-background z-50">
         <div className="container px-4 h-full flex items-center">
           <h1 className="text-xl font-semibold">Script Analysis</h1>
         </div>
       </nav>
 
-      <div className="w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-6rem)]">
+      <div className="w-full pt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-3rem)] fixed inset-0 top-12 overflow-auto">
           {/* Left Side */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-6 p-6 overflow-auto">
             {/* Analysis Container */}
-            <div className="rounded-lg">
+            <div>
               {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
             </div>
             
             {/* Script Input Container */}
-            <div className="rounded-lg">
+            <div>
               <ScriptInputCard
                 script={script}
                 onScriptChange={setScript}
@@ -118,7 +118,7 @@ export default function AnalyzePage() {
           </div>
 
           {/* Right Side - Rewritten Script */}
-          <div className="lg:col-span-8 rounded-lg">
+          <div className="lg:col-span-8 lg:border-l p-6 overflow-auto">
             {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
           </div>
         </div>
