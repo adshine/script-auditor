@@ -94,16 +94,16 @@ export default function AnalyzePage() {
       </nav>
 
       <div className="w-full pt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-3rem)] fixed inset-0 top-12 overflow-auto">
+        <div className="flex min-h-[calc(100vh-3rem)] fixed inset-0 top-12">
           {/* Left Side */}
-          <div className="lg:col-span-4 space-y-6 p-6 overflow-auto">
+          <div className="w-[400px] border-r flex flex-col">
             {/* Analysis Container */}
-            <div>
+            <div className="flex-1 overflow-auto">
               {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
             </div>
             
-            {/* Script Input Container */}
-            <div>
+            {/* Script Input Container - Fixed at bottom */}
+            <div className="border-t bg-background">
               <ScriptInputCard
                 script={script}
                 onScriptChange={setScript}
@@ -118,7 +118,7 @@ export default function AnalyzePage() {
           </div>
 
           {/* Right Side - Rewritten Script */}
-          <div className="lg:col-span-8 lg:border-l p-6 overflow-auto">
+          <div className="flex-1 p-6 overflow-auto">
             {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
           </div>
         </div>

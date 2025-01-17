@@ -29,7 +29,7 @@ export function ScriptInputCard({
   return (
     <Card>
       <CardHeader className="pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4">
           <CardTitle>Input Script</CardTitle>
           <div className="w-full sm:w-64">
             <ModelSelector
@@ -41,7 +41,7 @@ export function ScriptInputCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4 pb-4">
         <Textarea
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}

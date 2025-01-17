@@ -45,10 +45,11 @@ function Suggestion({ text }: { text: string }) {
 export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Analysis</h2>
+      <div className="sticky top-0 bg-background z-10">
+        <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
+        <hr className="border-t" />
       </div>
-      <div className="space-y-6">
+      <div className="space-y-6 px-4 mt-2">
         <div>
           <h3 className="font-semibold mb-2">Overall Score</h3>
           <ScoreIndicator score={analysis.overallScore} />
