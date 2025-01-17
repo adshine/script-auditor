@@ -27,26 +27,22 @@ export function ScriptInputCard({
   onShowFreeOnlyChange
 }: ScriptInputCardProps) {
   return (
-    <Card>
+    <Card className="shadow-none border-none">
       <CardHeader className="pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4">
-          <CardTitle>Input Script</CardTitle>
-          <div className="w-full sm:w-64">
-            <ModelSelector
+        <CardTitle className="text-sm font-semibold ml-[-6px]">Input Script</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 px-4 pb-4">
+      <ModelSelector
               selectedModel={selectedModel}
               onModelChange={onModelChange}
               showFreeOnly={showFreeOnly}
               onShowFreeOnlyChange={onShowFreeOnlyChange}
             />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4 px-4 pb-4">
         <Textarea
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}
           placeholder="Paste your tutorial script here..."
-          className="min-h-[200px] resize-none"
+          className="min-h-[120px] resize-none rounded-xl"
         />
         <Button
           onClick={onAnalyze}

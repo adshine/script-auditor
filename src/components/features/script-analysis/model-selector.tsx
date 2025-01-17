@@ -30,20 +30,6 @@ export function ModelSelector({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="free-only"
-          checked={showFreeOnly}
-          onCheckedChange={onShowFreeOnlyChange}
-        />
-        <label
-          htmlFor="free-only"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Show Free Models Only
-        </label>
-      </div>
-
       <Select value={selectedModel} onValueChange={onModelChange}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a model">

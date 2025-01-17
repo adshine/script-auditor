@@ -49,13 +49,13 @@ export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
         <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
         <hr className="border-t" />
       </div>
-      <div className="space-y-6 px-4 mt-2">
-        <div>
-          <h3 className="font-semibold mb-2">Overall Score</h3>
+      <div className="space-y-6 px-4 mt-4">
+        <div className="flex items-center justify-between border-b pb-2">
+          <h3 className="font-semibold mb-2 inline-block">Overall Score</h3>
           <ScoreIndicator score={analysis.overallScore} />
         </div>
 
-        <div>
+        <div className="border-b pb-5"> 
           <h3 className="font-semibold mb-2">Prioritized Improvements</h3>
           <div className="space-y-2">
             {analysis.prioritizedImprovements.map((improvement, index) => (
@@ -64,7 +64,7 @@ export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
           </div>
         </div>
 
-        <div>
+        <div className="border-b pb-5">
           <h3 className="font-semibold mb-2">Technical Terms</h3>
           <div className="flex flex-wrap gap-2">
             {analysis.technicalTerms.map((term, index) => (
@@ -76,7 +76,7 @@ export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
         </div>
 
         {Object.entries(analysis.sections).map(([sectionName, section]) => (
-          <div key={sectionName}>
+          <div key={sectionName} className="pb-5">
             <h3 className="font-semibold mb-2 capitalize">{sectionName}</h3>
             <div className="space-y-2">
               {section.suggestions.map((suggestion, index) => (
