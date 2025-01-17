@@ -1,48 +1,145 @@
 import type { RewrittenScript } from '@/lib/api';
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface RewrittenScriptCardProps {
   rewrittenScript: RewrittenScript;
 }
 
+function SideTab({ 
+  label, 
+  active, 
+  onClick 
+}: { 
+  label: string; 
+  active: boolean; 
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full text-left px-3 py-2 rounded-lg transition-colors",
+        "hover:bg-gray-100 dark:hover:bg-gray-800",
+        active && "bg-gray-100 dark:bg-gray-800 font-medium"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<string>("learning-objectives");
+
+  const sections = [
+    { id: "learning-objectives", label: "Learning Objectives" },
+    { id: "introduction", label: "Introduction" },
+    { id: "main-content", label: "Main Content" },
+    { id: "conclusion", label: "Conclusion" },
+    { id: "call-to-action", label: "Call to Action" }
+  ];
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element && contentRef.current) {
+      // Get the container's top position
+      const containerTop = contentRef.current.getBoundingClientRect().top + window.scrollY;
+      // Get the element's position relative to the container
+      const elementTop = element.getBoundingClientRect().top + window.scrollY;
+      // Calculate offset (80px for header + any additional spacing)
+      const offset = 100;
+      
+      window.scrollTo({
+        top: elementTop - offset,
+        behavior: 'smooth'
+      });
+      
+      setActiveSection(sectionId);
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '-100px 0px -50% 0px'
+      }
+    );
+
+    const elements = sections.map(section => 
+      document.getElementById(section.id)
+    ).filter(Boolean);
+
+    elements.forEach(element => element && observer.observe(element));
+
+    return () => {
+      elements.forEach(element => element && observer.unobserve(element));
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Rewritten Script</h2>
       </div>
-      <div className="space-y-6">
-        {/* Learning Objectives */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
-          <ul className="list-disc pl-6 space-y-1">
-            {rewrittenScript.learningObjectives.map((objective, index) => (
-              <li key={index} className="text-muted-foreground">{objective}</li>
+      <div className="flex gap-6">
+        <div className="w-48 flex-shrink-0 hidden lg:block">
+          <div className="sticky top-20 space-y-1 pr-2">
+            {sections.map((section) => (
+              <SideTab
+                key={section.id}
+                label={section.label}
+                active={activeSection === section.id}
+                onClick={() => scrollToSection(section.id)}
+              />
             ))}
-          </ul>
+          </div>
         </div>
+        
+        <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
+          {/* Learning Objectives */}
+          <div id="learning-objectives" className="scroll-mt-24">
+            <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
+            <ul className="list-disc pl-6 space-y-1">
+              {rewrittenScript.learningObjectives.map((objective, index) => (
+                <li key={index} className="text-muted-foreground">{objective}</li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Introduction */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Introduction</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-        </div>
+          {/* Introduction */}
+          <div id="introduction" className="scroll-mt-24">
+            <h3 className="font-medium text-foreground mb-2">Introduction</h3>
+            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
+          </div>
 
-        {/* Main Content */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Main Content</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-        </div>
+          {/* Main Content */}
+          <div id="main-content" className="scroll-mt-24">
+            <h3 className="font-medium text-foreground mb-2">Main Content</h3>
+            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
+          </div>
 
-        {/* Conclusion */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-        </div>
+          {/* Conclusion */}
+          <div id="conclusion" className="scroll-mt-24">
+            <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
+            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
+          </div>
 
-        {/* Call to Action */}
-        <div>
-          <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
+          {/* Call to Action */}
+          <div id="call-to-action" className="scroll-mt-24">
+            <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
+            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
+          </div>
         </div>
       </div>
     </div>
