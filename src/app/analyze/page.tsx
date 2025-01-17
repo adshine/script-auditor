@@ -87,13 +87,13 @@ export default function AnalyzePage() {
   return (
     <RootLayout>
       {/* Nav Bar */}
-      <nav className="w-full h-12 border-b mb-6">
-        <div className="container mx-auto px-4 h-full flex items-center">
+      <nav className="w-full h-12 border-b">
+        <div className="container px-4 h-full flex items-center">
           <h1 className="text-xl font-semibold">Script Analysis</h1>
         </div>
       </nav>
 
-      <div className="container mx-auto px-4">
+      <div className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-6rem)]">
           {/* Left Side */}
           <div className="lg:col-span-4 space-y-6">
