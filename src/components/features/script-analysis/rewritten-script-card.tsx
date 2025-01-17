@@ -106,31 +106,33 @@ ${rewrittenScript.callToAction}`;
   }, []);
 
   return (
-    <div className="relative">
-      <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Rewritten Script</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={copyToClipboard}
-        >
-          {copied ? (
-            <>
-              <Check className="h-4 w-4" />
-              <span>Copied!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="h-4 w-4" />
-              <span>Copy All</span>
-            </>
-          )}
-        </Button>
+    <div className="relative p-0">
+      <div className="sticky top-0 z-10 bg-background pt-4 pb-4 border-b">
+        <div className="flex justify-between items-center sticky top-0 px-4">
+          <h2 className="text-xl font-semibold">Rewritten Script</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={copyToClipboard}
+          >
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                <span>Copy All</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-      <div className="flex gap-6">
-        <div className="w-48 flex-shrink-0 hidden lg:block">
-          <div className="sticky top-20 space-y-1 pr-2">
+      <div className="flex gap-6 pt-4">
+        <div className="w-56 flex-shrink-0 hidden lg:block px-4">
+          <div className="sticky top-24 space-y-1 pr-2">
             {sections.map((section) => (
               <SideTab
                 key={section.id}
@@ -144,7 +146,7 @@ ${rewrittenScript.callToAction}`;
         
         <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
           {/* Learning Objectives */}
-          <section id="learning-objectives" className="pt-4 scroll-mt-28">
+          <section id="learning-objectives" className="pt-4 scroll-mt-32">
             <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
             <ul className="list-disc pl-6 space-y-1">
               {rewrittenScript.learningObjectives.map((objective, index) => (
@@ -154,25 +156,25 @@ ${rewrittenScript.callToAction}`;
           </section>
 
           {/* Introduction */}
-          <section id="introduction" className="pt-4 scroll-mt-28">
+          <section id="introduction" className="pt-4 scroll-mt-32">
             <h3 className="font-medium text-foreground mb-2">Introduction</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
           </section>
 
           {/* Main Content */}
-          <section id="main-content" className="pt-4 scroll-mt-28">
+          <section id="main-content" className="pt-4 scroll-mt-32">
             <h3 className="font-medium text-foreground mb-2">Main Content</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
           </section>
 
           {/* Conclusion */}
-          <section id="conclusion" className="pt-4 scroll-mt-28">
+          <section id="conclusion" className="pt-4 scroll-mt-32">
             <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
           </section>
 
           {/* Call to Action */}
-          <section id="call-to-action" className="pt-4 scroll-mt-28">
+          <section id="call-to-action" className="pt-4 scroll-mt-32">
             <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
           </section>

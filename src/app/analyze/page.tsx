@@ -86,14 +86,6 @@ export default function AnalyzePage() {
 
   return (
     <RootLayout>
-      {/* Nav Bar */}
-      <nav className="w-full h-12 border-b fixed top-0 bg-background z-50">
-        <div className="container px-4 h-full flex items-center">
-          <h1 className="text-xl font-semibold">Script Analysis</h1>
-        </div>
-      </nav>
-
-      <div className="w-full pt-12">
         <div className="flex min-h-[calc(100vh-3rem)] fixed inset-0 top-12">
           {/* Left Side */}
           <div className="w-[400px] border-r flex flex-col">
@@ -118,11 +110,11 @@ export default function AnalyzePage() {
           </div>
 
           {/* Right Side - Rewritten Script */}
-          <div className="flex-1 p-6 overflow-auto">
+          <div className="flex-1 overflow-auto">
             {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
           </div>
         </div>
-      </div>
+
     </RootLayout>
   );
 }
