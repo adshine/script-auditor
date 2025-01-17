@@ -79,30 +79,45 @@ ${rewrittenScript.callToAction}`;
   };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
+    const container = contentRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const scrollTop = container.parentElement?.scrollTop || 0;
+      const viewportHeight = window.innerHeight;
+      let nearestSection = sections[0].id;
+      let minDistance = Infinity;
+
+      sections.forEach(section => {
+        const element = document.getElementById(section.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const distance = Math.abs(rect.top - viewportHeight * 0.3);
+          
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestSection = section.id;
           }
-        });
-      },
-      {
-        threshold: 0.2,
-        rootMargin: '-100px 0px -50% 0px'
-      }
-    );
+        }
+      });
 
-    const elements = sections.map(section => 
-      document.getElementById(section.id)
-    ).filter(Boolean);
-
-    elements.forEach(element => element && observer.observe(element));
-
-    return () => {
-      elements.forEach(element => element && observer.unobserve(element));
-      observer.disconnect();
+      setActiveSection(nearestSection);
     };
+
+    const scrollContainer = container.parentElement;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+      // Initial check
+      handleScroll();
+
+      // Also check on window resize
+      window.addEventListener('resize', handleScroll, { passive: true });
+
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleScroll);
+      };
+    }
   }, []);
 
   return (
