@@ -22,10 +22,20 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.details || `Analysis failed: ${response.statusText}`);
+      throw new Error(data.details || data.error || `Analysis failed: ${response.statusText}`);
     }
 
-    return data;
+    // Validate the response structure
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid API response structure: Response is not an object');
+    }
+
+    const { analysis, rewrittenScript } = data;
+    if (!analysis || !rewrittenScript) {
+      throw new Error('Invalid API response structure: Missing required fields');
+    }
+
+    return data as ScriptAnalysis;
   } catch (error) {
     console.error('Error analyzing script:', error);
     throw error;
@@ -76,32 +86,42 @@ export default function AnalyzePage() {
 
   return (
     <RootLayout>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-8">
-        Script Analysis
-      </h1>
-      
-      <div className="space-y-8">
-        <ScriptInputCard
-          script={script}
-          onScriptChange={setScript}
-          onAnalyze={handleAnalyze}
-          loading={loading}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-          showFreeOnly={showFreeOnly}
-          onShowFreeOnlyChange={setShowFreeOnly}
-        />
+      {/* Nav Bar */}
+      <nav className="w-full h-12 border-b mb-6">
+        <div className="container mx-auto px-4 h-full flex items-center">
+          <h1 className="text-xl font-semibold">Script Analysis</h1>
+        </div>
+      </nav>
 
-        {analysis && (
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-            <div className="lg:col-span-3">
-              <ScriptAnalysisCard analysis={analysis.analysis} />
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-6rem)]">
+          {/* Left Side */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Analysis Container */}
+            <div className="rounded-lg">
+              {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
             </div>
-            <div className="lg:col-span-7">
-              <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
+            
+            {/* Script Input Container */}
+            <div className="rounded-lg">
+              <ScriptInputCard
+                script={script}
+                onScriptChange={setScript}
+                onAnalyze={handleAnalyze}
+                loading={loading}
+                selectedModel={selectedModel}
+                onModelChange={setSelectedModel}
+                showFreeOnly={showFreeOnly}
+                onShowFreeOnlyChange={setShowFreeOnly}
+              />
             </div>
           </div>
-        )}
+
+          {/* Right Side - Rewritten Script */}
+          <div className="lg:col-span-8 rounded-lg">
+            {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
+          </div>
+        </div>
       </div>
     </RootLayout>
   );
