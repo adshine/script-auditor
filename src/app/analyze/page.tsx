@@ -86,35 +86,34 @@ export default function AnalyzePage() {
 
   return (
     <RootLayout>
-        <div className="flex min-h-[calc(100vh-3rem)] fixed inset-0 top-12">
-          {/* Left Side */}
-          <div className="w-[400px] border-r flex flex-col">
-            {/* Analysis Container */}
-            <div className="flex-1 overflow-auto">
-              {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
-            </div>
-            
-            {/* Script Input Container - Fixed at bottom */}
-            <div className="border-t bg-background">
-              <ScriptInputCard
-                script={script}
-                onScriptChange={setScript}
-                onAnalyze={handleAnalyze}
-                loading={loading}
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-                showFreeOnly={showFreeOnly}
-                onShowFreeOnlyChange={setShowFreeOnly}
-              />
-            </div>
-          </div>
-
-          {/* Right Side - Rewritten Script */}
+      <div className="flex h-screen overflow-hidden">
+        {/* Left Side */}
+        <div className="w-[400px] border-r flex flex-col">
+          {/* Analysis Container */}
           <div className="flex-1 overflow-auto">
-            {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
+            {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
+          </div>
+          
+          {/* Script Input Container - Fixed at bottom */}
+          <div className="border-t bg-background">
+            <ScriptInputCard
+              script={script}
+              onScriptChange={setScript}
+              onAnalyze={handleAnalyze}
+              loading={loading}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              showFreeOnly={showFreeOnly}
+              onShowFreeOnlyChange={setShowFreeOnly}
+            />
           </div>
         </div>
 
+        {/* Right Side - Rewritten Script */}
+        <div className="flex-1 overflow-auto">
+          {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
+        </div>
+      </div>
     </RootLayout>
   );
 }
