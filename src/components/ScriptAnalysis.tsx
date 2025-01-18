@@ -3,6 +3,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ScriptAnalysis as ScriptAnalysisType, Section } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 interface ScriptAnalysisProps {
   analysis: ScriptAnalysisType;
@@ -48,12 +54,18 @@ export default function ScriptAnalysis({ analysis }: ScriptAnalysisProps) {
             <ScoreIndicator score={analysis.analysis.overallScore} />
           </div>
           
-          <h3 className="font-medium text-foreground mb-2">Priority Improvements:</h3>
-          <ul className="space-y-2">
-            {analysis.analysis.prioritizedImprovements.map((improvement: string, index: number) => (
-              <Suggestion key={index} text={improvement} />
-            ))}
-          </ul>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="improvements">
+              <AccordionTrigger>Priority Improvements</AccordionTrigger>
+              <AccordionContent>
+                <ul className="space-y-2">
+                  {analysis.analysis.prioritizedImprovements.map((improvement: string, index: number) => (
+                    <Suggestion key={index} text={improvement} />
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
 
