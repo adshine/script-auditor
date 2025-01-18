@@ -8,6 +8,7 @@ import { ScriptAnalysisCard } from '@/components/features/script-analysis/script
 import { RewrittenScriptCard } from '@/components/features/script-analysis/rewritten-script-card';
 import { availableModels } from '@/lib/models';
 import type { ScriptAnalysis } from '@/lib/api';
+import { FileSearch, FileText } from 'lucide-react';
 
 async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
   try {
@@ -94,11 +95,17 @@ export default function AnalyzePage() {
             {analysis ? (
               <ScriptAnalysisCard analysis={analysis.analysis} />
             ) : (
-              <div className="sticky top-0 bg-background z-10">
-                <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
-                <hr className="border-t" />
-                <div className="p-4 text-muted-foreground text-sm">
-                  Enter your script and click analyze to see the results.
+              <div className="h-full flex flex-col">
+                <div className="sticky top-0 bg-background z-10">
+                  <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
+                  <hr className="border-t" />
+                </div>
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+                  <FileSearch className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+                  <div className="space-y-1">
+                    <p>Enter your script</p>
+                    <p>and click analyze to see the results.</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -124,11 +131,17 @@ export default function AnalyzePage() {
           {analysis ? (
             <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
           ) : (
-            <div className="sticky top-0 bg-background z-10">
-              <h2 className="text-l font-semibold py-3 px-4">Rewritten Script</h2>
-              <hr className="border-t" />
-              <div className="p-4 text-muted-foreground text-sm">
-                Your rewritten script will appear here after analysis.
+            <div className="h-full flex flex-col">
+              <div className="sticky top-0 bg-background z-10">
+                <h2 className="text-l font-semibold py-3 px-4">Rewritten Script</h2>
+                <hr className="border-t" />
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+                <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+                <div className="space-y-1">
+                  <p>Your rewritten script will appear here</p>
+                  <p>after analysis.</p>
+                </div>
               </div>
             </div>
           )}
