@@ -91,7 +91,17 @@ export default function AnalyzePage() {
         <div className="w-[400px] border-r flex flex-col">
           {/* Analysis Container */}
           <div className="flex-1 overflow-auto">
-            {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
+            {analysis ? (
+              <ScriptAnalysisCard analysis={analysis.analysis} />
+            ) : (
+              <div className="sticky top-0 bg-background z-10">
+                <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
+                <hr className="border-t" />
+                <div className="p-4 text-muted-foreground text-sm">
+                  Enter your script and click analyze to see the results.
+                </div>
+              </div>
+            )}
           </div>
           
           {/* Script Input Container - Fixed at bottom */}
@@ -111,7 +121,17 @@ export default function AnalyzePage() {
 
         {/* Right Side - Rewritten Script */}
         <div className="flex-1 overflow-auto">
-          {analysis && <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />}
+          {analysis ? (
+            <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
+          ) : (
+            <div className="sticky top-0 bg-background z-10">
+              <h2 className="text-l font-semibold py-3 px-4">Rewritten Script</h2>
+              <hr className="border-t" />
+              <div className="p-4 text-muted-foreground text-sm">
+                Your rewritten script will appear here after analysis.
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </RootLayout>
