@@ -46,7 +46,6 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
 export default function AnalyzePage() {
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
   const [selectedModel, setSelectedModel] = useState(sortedModels[0].id);
-  const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [script, setScript] = useState('');
   const [analysis, setAnalysis] = useState<ScriptAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
@@ -120,8 +119,6 @@ export default function AnalyzePage() {
               loading={loading}
               selectedModel={selectedModel}
               onModelChange={setSelectedModel}
-              showFreeOnly={showFreeOnly}
-              onShowFreeOnlyChange={setShowFreeOnly}
             />
           </div>
         </div>

@@ -8,26 +8,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { availableModels, type AIModel } from "@/lib/models";
+import { availableModels } from "@/lib/models";
 
 interface ModelSelectorProps {
   selectedModel: string;
   onModelChange: (modelId: string) => void;
-  showFreeOnly: boolean;
-  onShowFreeOnlyChange: (showFree: boolean) => void;
 }
 
 export function ModelSelector({
   selectedModel,
   onModelChange,
-  showFreeOnly,
-  onShowFreeOnlyChange
 }: ModelSelectorProps) {
-  const filteredModels = showFreeOnly 
-    ? availableModels.filter(model => !model.paid)
-    : availableModels;
-
   return (
     <div className="space-y-4">
       <Select value={selectedModel} onValueChange={onModelChange}>
@@ -37,7 +28,7 @@ export function ModelSelector({
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {Object.values(filteredModels).map((model) => (
+          {availableModels.map((model) => (
             <SelectGroup key={model.id}>
               <SelectLabel className="flex items-center justify-between">
                 <span>{model.provider}</span>

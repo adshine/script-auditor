@@ -1,5 +1,5 @@
 import type { RewrittenScript } from '@/lib/api';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,13 +36,13 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
   const [copied, setCopied] = useState(false);
 
-  const sections = [
+  const sections = useMemo(() => [
     { id: "learning-objectives", label: "Learning Objectives" },
     { id: "introduction", label: "Introduction" },
     { id: "main-content", label: "Main Content" },
     { id: "conclusion", label: "Conclusion" },
     { id: "call-to-action", label: "Call to Action" }
-  ];
+  ], []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -83,7 +83,6 @@ ${rewrittenScript.callToAction}`;
     if (!container) return;
 
     const handleScroll = () => {
-      const scrollTop = container.parentElement?.scrollTop || 0;
       const viewportHeight = window.innerHeight;
       let nearestSection = sections[0].id;
       let minDistance = Infinity;
@@ -118,7 +117,7 @@ ${rewrittenScript.callToAction}`;
         window.removeEventListener('resize', handleScroll);
       };
     }
-  }, []);
+  }, [sections]);
 
   return (
     <div className="relative p-0">
