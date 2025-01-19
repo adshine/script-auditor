@@ -1,12 +1,15 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import type { ScriptAnalysis } from './api';
 
-const GEMINI_API_KEY = 'AIzaSyA4GCiEUmLH5YP0S7w69lCYyBcBT2fMEt0';
-
 export async function analyzeWithGemini(script: string): Promise<ScriptAnalysis> {
   try {
     console.log('Gemini API: Initializing...');
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+    
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-pro',
       generationConfig: {
@@ -36,43 +39,96 @@ export async function analyzeWithGemini(script: string): Promise<ScriptAnalysis>
     });
 
     console.log('Gemini API: Model initialized, sending prompt...');
-    const prompt = `You are an AI script analyzer. Your task is to analyze and enhance the given script.
+    const prompt = `You are an experienced script writer and instructional designer. Analyze and enhance the given script that will be performed by the user's trained AI avatar.
 Follow these requirements strictly:
 1. Respond ONLY with a valid JSON object
 2. Do not include any explanatory text or markdown formatting
 3. The JSON must include all required fields as shown in the example
 4. Ensure all string values are properly escaped
 
-Analyze this script based on these criteria:
+Evaluate and improve the script based on these key areas:
+
+1. Engagement & Structure:
+   - Hook and attention-grabbing opening
+   - Clear learning objectives
+   - Logical flow and transitions
+   - Effective conclusion and call-to-action
+   - Knowledge check points
+
+2. Delivery & Pacing:
+   - Natural conversational tone
+   - Strategic pauses for emphasis
+   - Varied sentence lengths
+   - Chunked information
+   - Clear transitions between topics
+
+3. Visual Integration:
+   - Add [VISUAL CUE] markers for demos/graphics
+   - Highlight key concepts
+   - Add on-screen text suggestions
+   - Include visual metaphors and examples
+   - Suggest data visualization moments
+
+4. Instructional Design:
+   - Progressive complexity
+   - Real-world examples
+   - Practice opportunities
+   - Memory retention techniques
+   - Active learning prompts
+
+5. Accessibility & Clarity:
+   - Simple language for complex concepts
+   - Define technical terms
+   - Maintain consistent terminology
+   - Ensure cultural sensitivity
+   - Use inclusive language
+
+For each improvement made, mark it with [IMPLEMENTED] to track progress.
+
+Script to analyze:
 ${script}
 
-Required JSON structure:
+Respond with this exact JSON structure (replace example values with real analysis):
 {
   "analysis": {
-    "technicalTerms": ["term1", "term2"],
+    "technicalTerms": ["List all technical terms found in the script"],
     "readabilityScore": 9.0,
-    "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2"],
+    "suggestions": [
+      "Add a strong opening hook [IMPLEMENTED]",
+      "Break down complex concepts into simpler terms",
+      "Add more visual elements for engagement"
+    ],
     "overallScore": 9.0,
-    "prioritizedImprovements": ["improvement1 [IMPLEMENTED]", "improvement2"],
+    "prioritizedImprovements": [
+      "Add clear learning objectives at the start [IMPLEMENTED]",
+      "Include more interactive elements",
+      "Enhance visual integration"
+    ],
     "sections": {
       "introduction": {
         "score": 8.5,
-        "suggestions": ["suggestion1 [IMPLEMENTED]", "suggestion2"],
+        "suggestions": [
+          "Add an attention-grabbing opening [IMPLEMENTED]",
+          "Include clear objectives"
+        ],
         "readabilityMetrics": {
           "fleschKincaid": 12.5,
           "wordsPerSentence": 21,
-          "technicalTerms": ["term1", "term2"]
+          "technicalTerms": ["List technical terms in this section"]
         },
-        "aiEnhancements": "text with [VISUAL CUE] markers"
+        "aiEnhancements": "Specific text with [VISUAL CUE] markers for this section"
       }
     }
   },
   "rewrittenScript": {
-    "learningObjectives": ["objective1", "objective2"],
-    "introduction": "text with [VISUAL CUE] markers",
-    "mainContent": "text with [VISUAL CUE] markers",
-    "conclusion": "text with [VISUAL CUE] markers",
-    "callToAction": "text with [VISUAL CUE] markers"
+    "learningObjectives": [
+      "List specific, measurable learning objectives",
+      "What learners will achieve from this script"
+    ],
+    "introduction": "Enhanced introduction with [VISUAL CUE] markers",
+    "mainContent": "Enhanced main content with [VISUAL CUE] markers",
+    "conclusion": "Enhanced conclusion with [VISUAL CUE] markers",
+    "callToAction": "Clear, actionable next steps with [VISUAL CUE] markers"
   }
 }`;
 
