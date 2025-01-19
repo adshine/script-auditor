@@ -24,27 +24,52 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
   const maxRetries = 3;
   const baseDelay = 1000; // 1 second
 
+  // Validate script length before sending
+  if (script.length > 100000) {
+    throw new Error('Script is too long. Please reduce the length and try again.');
+  }
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      console.log(`Attempt ${attempt}: Sending request with model ${model}`);
+      
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ script, model }),
+        body: JSON.stringify({ 
+          script: script.trim(),
+          model 
+        }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        const textResponse = await response.text();
+        console.log(`Attempt ${attempt}: Raw response:`, textResponse);
+        data = JSON.parse(textResponse);
+      } catch (parseError) {
+        console.error(`Attempt ${attempt}: Failed to parse response:`, parseError);
+        if (attempt === maxRetries) {
+          throw new Error('Failed to parse API response. Please try again.');
+        }
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
 
       // Check if the response has the expected structure
       if (!response.ok || !data || typeof data !== 'object') {
-        console.error(`Attempt ${attempt}: Invalid response:`, { status: response.status, data });
+        console.error(`Attempt ${attempt}: Invalid response:`, { 
+          status: response.status, 
+          ok: response.ok,
+          data 
+        });
         
         if (attempt === maxRetries) {
-          throw new Error(data?.details || `Analysis failed: ${response.statusText}`);
+          throw new Error(data?.details || data?.error || `Analysis failed: ${response.statusText}`);
         }
         
-        // Wait before retrying, with exponential backoff
         await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
         continue;
       }
@@ -52,7 +77,11 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
       // Validate the response structure
       const { analysis, rewrittenScript } = data;
       if (!analysis || !rewrittenScript) {
-        console.error(`Attempt ${attempt}: Missing required fields:`, { hasAnalysis: !!analysis, hasRewrittenScript: !!rewrittenScript });
+        console.error(`Attempt ${attempt}: Missing required fields:`, { 
+          hasAnalysis: !!analysis, 
+          hasRewrittenScript: !!rewrittenScript,
+          data 
+        });
         
         if (attempt === maxRetries) {
           throw new Error('Invalid API response structure: Missing required fields');
@@ -62,6 +91,7 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
         continue;
       }
 
+      console.log('Analysis completed successfully');
       return data;
     } catch (error) {
       console.error(`Attempt ${attempt} failed:`, error);
@@ -70,12 +100,10 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
         throw error;
       }
       
-      // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
     }
   }
 
-  // This should never be reached due to the throw in the last retry
   throw new Error('Failed to analyze script after all retries');
 }
 

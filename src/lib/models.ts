@@ -43,54 +43,5 @@ export const availableModels: AIModel[] = [
       input: 0.0375,
       output: 0.15
     }
-  },
-  {
-    id: "meta-llama/llama-3.2-1b-instruct",
-    name: "Llama 3.2 1B Instruct",
-    provider: "Meta",
-    description: "131K ctx, 14.6B tokens, $0.01/$0.01 per 1M tokens",
-    contextWindow: 131000,
-    paid: true,
-    maxTokens: 14600,
-    pricing: {
-      input: 0.01,
-      output: 0.01
-    }
-  },
-  {
-    id: "meta-llama/llama-3.2-1b-instruct:free",
-    name: "Llama 3.2 1B Instruct (Free)",
-    provider: "Meta",
-    description: "4K ctx, 182M tokens",
-    contextWindow: 4000,
-    paid: false,
-    maxTokens: 182000
-  },
-  {
-    id: "google/gemma-2-9b-it:free",
-    name: "Gemma 2 9B (Free)",
-    provider: "Google",
-    description: "8K ctx, 233M tokens",
-    contextWindow: 8000,
-    paid: false,
-    maxTokens: 233000
-  },
-  {
-    id: "meta-llama/llama-3-8b-instruct:free",
-    name: "Llama 3 8B Instruct (Free)",
-    provider: "Meta",
-    description: "8K ctx, 132M tokens",
-    contextWindow: 8000,
-    paid: false,
-    maxTokens: 132000
-  },
-  {
-    id: "meta-llama/llama-3.2-11b-vision-instruct:free",
-    name: "Llama 3.2 11B Vision Instruct (Free)",
-    provider: "Meta",
-    description: "8K ctx, 69M tokens, Vision capable",
-    contextWindow: 8000,
-    paid: false,
-    maxTokens: 69000
   }
-].sort((a, b) => b.contextWindow - a.contextWindow); // Sort by context window size 
+].sort((a, b) => b.contextWindow - a.contextWindow); // Sort by context window size
