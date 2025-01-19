@@ -4,7 +4,7 @@ import type { ScriptAnalysis } from './api';
 export async function analyzeWithGemini(script: string): Promise<ScriptAnalysis> {
   try {
     console.log('Gemini API: Initializing...');
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('Gemini API key not configured');
     }
