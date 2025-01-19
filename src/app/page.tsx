@@ -16,7 +16,8 @@ const getGreeting = () => {
   if (hour >= 5 && hour < 12) return 'Good Morning';
   if (hour >= 12 && hour < 17) return 'Good Afternoon';
   if (hour >= 17 && hour < 22) return 'Good Evening';
-  return 'Good Night';
+  if (hour >= 22 || hour < 5) return 'Good Night';
+  return 'Good Night'; // fallback, should never reach here
 };
 
 async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
@@ -163,14 +164,6 @@ const HomePage = () => {
               ) : (
                 'Analyze Script'
               )}
-            </Button>
-            
-            <Button 
-              variant="outline"
-              className="w-[140px]"
-              onClick={() => router.push('/analyze')}
-            >
-              See Result Page
             </Button>
           </div>
         </Card>

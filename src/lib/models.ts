@@ -6,7 +6,6 @@ export interface AIModel {
   contextWindow: number;
   paid: boolean;
   maxTokens: number;
-  useDirectAPI?: boolean;
   pricing?: {
     input: number;
     output: number;
@@ -15,18 +14,8 @@ export interface AIModel {
 
 export const availableModels: AIModel[] = [
   {
-    id: "gemini-pro",
-    name: "Gemini Pro (Direct)",
-    provider: "Google",
-    description: "Direct integration with Gemini Pro API",
-    contextWindow: 30000,
-    paid: false,
-    maxTokens: 30000,
-    useDirectAPI: true
-  },
-  {
     id: "google/gemini-2.0-flash-exp:free",
-    name: "Gemini Flash 2.0 Experimental (OpenRouter)",
+    name: "Gemini Flash 2.0 Experimental",
     provider: "Google",
     description: "Fast TTFT, 1.05M ctx, 3.56B tokens",
     contextWindow: 1050000,
