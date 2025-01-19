@@ -20,21 +20,62 @@ const getGreeting = () => {
 };
 
 async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
-  const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ script, model }),
-  });
+  const maxRetries = 3;
+  const baseDelay = 1000; // 1 second
 
-  const data = await response.json();
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ script, model }),
+      });
 
-  if (!response.ok) {
-    throw new Error(data.details || `Analysis failed: ${response.statusText}`);
+      const data = await response.json();
+
+      // Check if the response has the expected structure
+      if (!response.ok || !data || typeof data !== 'object') {
+        console.error(`Attempt ${attempt}: Invalid response:`, { status: response.status, data });
+        
+        if (attempt === maxRetries) {
+          throw new Error(data?.details || `Analysis failed: ${response.statusText}`);
+        }
+        
+        // Wait before retrying, with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
+
+      // Validate the response structure
+      const { analysis, rewrittenScript } = data;
+      if (!analysis || !rewrittenScript) {
+        console.error(`Attempt ${attempt}: Missing required fields:`, { hasAnalysis: !!analysis, hasRewrittenScript: !!rewrittenScript });
+        
+        if (attempt === maxRetries) {
+          throw new Error('Invalid API response structure: Missing required fields');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
+
+      return data;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+    }
   }
 
-  return data;
+  // This should never be reached due to the throw in the last retry
+  throw new Error('Failed to analyze script after all retries');
 }
 
 const HomePage = () => {
@@ -67,14 +108,20 @@ const HomePage = () => {
 
     setIsAnalyzing(true);
     try {
+      toast.loading('Analyzing your script...', { id: 'analyze' });
       const result = await analyzeScriptAPI(script, selectedModel);
-      toast.success('Analysis completed successfully');
+      toast.success('Analysis completed successfully', { id: 'analyze' });
       // Store the result in localStorage so the analyze page can access it
       localStorage.setItem('scriptAnalysis', JSON.stringify(result));
       router.push('/analyze');
     } catch (error) {
       console.error('Error analyzing script:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to analyze script. Please try again.');
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to analyze script. Please try again.',
+        { id: 'analyze' }
+      );
     } finally {
       setIsAnalyzing(false);
     }

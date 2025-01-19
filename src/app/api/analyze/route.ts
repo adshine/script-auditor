@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { analyzeScript } from '@/lib/api';
+import { analyzeWithGemini } from '@/lib/gemini-api';
+import { availableModels } from '@/lib/models';
 
 export async function POST(request: Request) {
   console.log('API Route: Starting request handling');
@@ -46,19 +48,37 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check environment variables
-    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      console.error('API Route: OpenRouter API key not configured');
+    // Find the selected model configuration
+    const selectedModel = availableModels.find(m => m.id === model);
+    if (!selectedModel) {
+      console.error('API Route: Invalid model selected:', model);
       return NextResponse.json(
-        { error: 'Configuration error', details: 'OpenRouter API key not configured' },
-        { status: 500 }
+        { error: 'Invalid model', details: 'Selected model is not available' },
+        { status: 400 }
       );
     }
 
     console.log('API Route: Starting script analysis with model:', model);
     try {
-      const analysis = await analyzeScript(script, model);
+      let analysis;
+      
+      if (selectedModel.useDirectAPI) {
+        // Use direct Gemini API
+        analysis = await analyzeWithGemini(script);
+      } else {
+        // Check OpenRouter API key
+        const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+        if (!apiKey) {
+          console.error('API Route: OpenRouter API key not configured');
+          return NextResponse.json(
+            { error: 'Configuration error', details: 'OpenRouter API key not configured' },
+            { status: 500 }
+          );
+        }
+        // Use OpenRouter API
+        analysis = await analyzeScript(script, model);
+      }
+
       console.log('API Route: Analysis completed successfully');
       
       // Validate analysis structure before returning
