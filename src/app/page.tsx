@@ -39,20 +39,23 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
 
 const HomePage = () => {
   const router = useRouter();
-  const [greeting, setGreeting] = useState('');
+  const [greeting, setGreeting] = useState('Welcome');
   const [script, setScript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   // Sort models by context window size and select the first one
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
   const [selectedModel, setSelectedModel] = useState(sortedModels[0].id);
-  const [showFreeOnly, setShowFreeOnly] = useState(false);
 
   useEffect(() => {
-    setGreeting(getGreeting());
+    // Set initial greeting
+    setGreeting(`${getGreeting()}, Adebimpe`);
+    
+    // Update greeting every minute
     const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000); // Update every minute
+      setGreeting(`${getGreeting()}, Adebimpe`);
+    }, 60000);
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -81,7 +84,7 @@ const HomePage = () => {
     <RootLayout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] max-w-2xl mx-auto px-4">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-8">
-          {greeting}, Adebimpe
+          {greeting}
         </h1>
         
         <Card className="w-full p-6">
@@ -89,8 +92,6 @@ const HomePage = () => {
             <ModelSelector
               selectedModel={selectedModel}
               onModelChange={setSelectedModel}
-              showFreeOnly={showFreeOnly}
-              onShowFreeOnlyChange={setShowFreeOnly}
             />
           </div>
           

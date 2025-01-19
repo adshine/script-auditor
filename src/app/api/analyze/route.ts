@@ -46,6 +46,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check environment variables
+    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      console.error('API Route: OpenRouter API key not configured');
+      return NextResponse.json(
+        { error: 'Configuration error', details: 'OpenRouter API key not configured' },
+        { status: 500 }
+      );
+    }
+
     console.log('API Route: Starting script analysis with model:', model);
     try {
       const analysis = await analyzeScript(script, model);

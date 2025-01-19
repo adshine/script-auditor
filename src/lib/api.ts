@@ -61,15 +61,16 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
   console.log('analyzeText: Starting API request');
   
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      console.error('analyzeText: OPENROUTER_API_KEY is not set in environment variables');
+      console.error('analyzeText: Neither NEXT_PUBLIC_OPENROUTER_API_KEY nor OPENROUTER_API_KEY is set in environment variables');
       throw new Error('API key not configured');
     }
 
+    const baseUrl = process.env.NEXT_PUBLIC_OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
     console.log('analyzeText: Making request to OpenRouter API with model:', model);
     const response = await axios.post<OpenRouterResponse>(
-      'https://openrouter.ai/api/v1/chat/completions',
+      `${baseUrl}/chat/completions`,
       {
         model,
         messages: [
@@ -94,6 +95,9 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
 
     console.log('analyzeText: Response status:', response.status);
     
+    // Log the raw response for debugging
+    console.log('analyzeText: Raw response:', JSON.stringify(response.data, null, 2));
+    
     if (!response.data || !response.data.choices || !response.data.choices.length) {
       console.error('analyzeText: Invalid API response structure:', response.data);
       throw new Error('Invalid API response structure');
@@ -114,10 +118,21 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
       const cleanContent = content
         .replace(/^```json\s*/, '')
         .replace(/\s*```$/, '')
+        .replace(/^\s+|\s+$/g, '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
         .trim();
       
       console.log('analyzeText: Cleaned content:', cleanContent);
-      parsedContent = JSON.parse(cleanContent);
+      
+      try {
+        parsedContent = JSON.parse(cleanContent);
+      } catch (jsonError) {
+        console.error('analyzeText: JSON parse error on cleaned content:', jsonError);
+        console.error('analyzeText: Failed cleaned content:', cleanContent);
+        // Try parsing the original content as a fallback
+        console.log('analyzeText: Attempting to parse original content');
+        parsedContent = JSON.parse(content);
+      }
       
       // Additional validation of the parsed content
       if (!parsedContent || typeof parsedContent !== 'object') {
@@ -133,6 +148,10 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
     } catch (parseError) {
       console.error('analyzeText: JSON parse error:', parseError);
       console.error('analyzeText: Failed content:', content);
+      if (typeof content === 'string' && content.includes('<')) {
+        console.error('analyzeText: Response contains HTML - likely an error page');
+        throw new Error('Received HTML instead of JSON - API endpoint may be incorrect or returning an error page');
+      }
       throw new Error(`API response is not valid JSON: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
     }
   } catch (error) {
@@ -190,7 +209,7 @@ Evaluate and improve the script based on these key areas:
    - Visual metaphors and examples
    - Data visualization moments
    - **Example**: 
-     > “To illustrate how our product reaches different audiences, let’s look at a quick chart of user demographics. [VISUAL CUE: A chart showing user demographics by age group].”
+     > "To illustrate how our product reaches different audiences, let's look at a quick chart of user demographics. [VISUAL CUE: A chart showing user demographics by age group]."
      >
      > This tells your production team (or AI avatar) exactly what to display on screen.
 
