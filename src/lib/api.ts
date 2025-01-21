@@ -190,13 +190,13 @@ Evaluate and improve the script based on these key areas:
 
 1. Engagement & Structure:
    - Hook and attention-grabbing opening
-   - Hook: Must use either (1) direct question or (2) relatable metaphor [IMPLEMENTED] 
+   - Hook: Must use either (1) relatable direct question or (2) relatable metaphor [IMPLEMENTED] 
    - Clear learning objectives
    - Learning objectives: MAX 5, start with action verbs (e.g., "Design...", "Execute...")  
    - Logical flow and transitions
    - Effective conclusion and call-to-action
    - Knowledge check points
-   - Mandatory knowledge check every 120 seconds (poll/reflection prompt) [IMPLEMENTED]
+   - Mandatory knowledge check every 120 seconds (poll/reflection prompt/ make sure to make it add answer) [IMPLEMENTED]
 
 2. Delivery & Pacing:
    - Natural conversational tone
@@ -204,6 +204,7 @@ Evaluate and improve the script based on these key areas:
    - Varied sentence lengths
    - Chunked information
    - Clear transitions between topics
+   - Make sure to break up long sentences into paragraphs
 
 3. Visual Integration:
    - Visual cue markers [VISUAL CUE] for demos/graphics
@@ -247,11 +248,24 @@ Evaluate and improve the script based on these key areas:
    - Translate insights into actionable recommendations
    - Demonstrate how to verify assumptions and avoid bias
 
-8. **Validation Requirements**  
+8. **Diversity Requirements**  
+   - Examples must include:  
+     - ≥2 genders  
+     - ≥3 ethnicities  
+     - Age range: 20-65  
+     - ≥2 professions  
+     - ≥2 industries  
+     - ≥2 countries  
+     - ≥2 languages  
+
+9. **Validation Requirements**  
    - Reject scripts with:  
      • Flesch-Kincaid >12.0  
      • Undefined technical terms  
-     • >20 words/sentence average 
+     • >20 words/sentence average
+     - Visuals use generic terms ("graphic" → "timeline_art")  
+     - Sentences >18 words average  
+     - No plain-English explanations for terms like "affinity mapping" 
 
 For each improvement made, mark it with [IMPLEMENTED] to track progress.
 
@@ -296,8 +310,6 @@ Respond in JSON format exactly as follows:
 }
 
 **Absolute Rules:**  
-• Escape ALL quotes (\\\")  
-• NO markdown in JSON  
 • 1:1 objective-practice alignment
 `;
 

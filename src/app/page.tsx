@@ -145,12 +145,28 @@ const HomePage = () => {
       router.push('/analyze');
     } catch (error) {
       console.error('Error analyzing script:', error);
-      toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Failed to analyze script. Please try again.',
-        { id: 'analyze' }
-      );
+      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze script. Please try again.';
+      
+      if (errorMessage.toLowerCase().includes('rate limit')) {
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <p>Rate limit exceeded. Please wait a moment before trying again.</p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.location.reload()}
+            >
+              Reload Page
+            </Button>
+          </div>,
+          { 
+            id: 'analyze',
+            duration: 5000
+          }
+        );
+      } else {
+        toast.error(errorMessage, { id: 'analyze' });
+      }
     } finally {
       setIsAnalyzing(false);
     }
