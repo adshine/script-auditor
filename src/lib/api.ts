@@ -184,16 +184,19 @@ export async function analyzeScript(script: string, model: string): Promise<Scri
   try {
     const prompt = `
 As an experienced script writer and instructional designer, analyze and enhance this script that will be performed by the user's trained AI avatar.
-DO NOT add any AI introductions - the avatar is already trained with the user's persona.
+DO NOT add any AI introductions — the avatar is already trained with the user's persona.
 
 Evaluate and improve the script based on these key areas:
 
 1. Engagement & Structure:
    - Hook and attention-grabbing opening
+   - Hook: Must use either (1) direct question or (2) relatable metaphor [IMPLEMENTED] 
    - Clear learning objectives
+   - Learning objectives: MAX 5, start with action verbs (e.g., "Design...", "Execute...")  
    - Logical flow and transitions
    - Effective conclusion and call-to-action
    - Knowledge check points
+   - Mandatory knowledge check every 120 seconds (poll/reflection prompt) [IMPLEMENTED]
 
 2. Delivery & Pacing:
    - Natural conversational tone
@@ -208,10 +211,14 @@ Evaluate and improve the script based on these key areas:
    - Opportunities for on-screen text
    - Visual metaphors and examples
    - Data visualization moments
-   - **Example**: 
+   - **Example**:
      > "To illustrate how our product reaches different audiences, let's look at a quick chart of user demographics. [VISUAL CUE: A chart showing user demographics by age group]."
      >
      > This tells your production team (or AI avatar) exactly what to display on screen.
+  - Visual cues MUST specify:  
+     > [VISUAL CUE: TYPE|KEY ELEMENTS|DURATION]  
+     Example:  
+     > [VISUAL CUE: animated_timeline|interview_process_flow|8s]
 
 4. Instructional Design:
    - Progressive complexity
@@ -219,6 +226,7 @@ Evaluate and improve the script based on these key areas:
    - Practice opportunities
    - Memory retention techniques
    - Active learning prompts
+   - **Incorporate brief role-play or example segments** to illustrate best practices or common pitfalls
 
 5. Accessibility & Clarity:
    - Simple language for complex concepts
@@ -226,6 +234,24 @@ Evaluate and improve the script based on these key areas:
    - Consistent terminology
    - Cultural sensitivity
    - Inclusive language
+
+6. **Ethics & Participant Considerations (if applicable)**:
+   - Emphasize the importance of informed consent
+   - Address privacy and confidentiality
+   - Ensure empathy and respect during interviews or user research
+   - Provide disclaimers or reminders about ethical guidelines
+
+7. **Participant Recruitment & Data Analysis (if applicable)**:
+   - Mention strategies for finding diverse participants
+   - Include steps for synthesizing and organizing interview data
+   - Translate insights into actionable recommendations
+   - Demonstrate how to verify assumptions and avoid bias
+
+8. **Validation Requirements**  
+   - Reject scripts with:  
+     • Flesch-Kincaid >12.0  
+     • Undefined technical terms  
+     • >20 words/sentence average 
 
 For each improvement made, mark it with [IMPLEMENTED] to track progress.
 
@@ -268,6 +294,11 @@ Respond in JSON format exactly as follows:
     "callToAction": "text with [VISUAL CUE] markers"
   }
 }
+
+**Absolute Rules:**  
+• Escape ALL quotes (\\\")  
+• NO markdown in JSON  
+• 1:1 objective-practice alignment
 `;
 
 
