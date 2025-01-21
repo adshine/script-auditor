@@ -196,7 +196,7 @@ Evaluate and improve the script based on these key areas:
    - Logical flow and transitions
    - Effective conclusion and call-to-action
    - Knowledge check points
-   - Mandatory knowledge check every 120 seconds (poll/reflection prompt/ make sure to make it add answer) [IMPLEMENTED]
+   - Mandatory knowledge check every 120 seconds (poll/reflection prompt/ MAKE SURE TO INCLUDE THE ANSWER) [IMPLEMENTED]
 
 2. Delivery & Pacing:
    - Natural conversational tone
