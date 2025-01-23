@@ -31,11 +31,11 @@ export function ModelSelector({
       <SelectContent className="w-[320px]">
         {availableModels.map((model) => (
           <SelectGroup key={model.id}>
-            <SelectItem value={model.id} className="py-2 px-3">
-              <div className="flex items-center justify-between gap-3">
+            <SelectItem value={model.id} className="py-3 px-4 relative">
+              <div className="flex items-center justify-between gap-3 pl-6">
                 <span className="font-medium text-sm">{model.name.replace(' (Google)', '')}</span>
                 {!model.paid && (
-                  <Badge variant="secondary" className="ml-2 text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
+                  <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
                     Free
                   </Badge>
                 )}
