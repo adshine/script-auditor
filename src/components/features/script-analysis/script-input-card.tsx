@@ -26,14 +26,14 @@ export function ScriptInputCard({
       <CardHeader className="pb-4">
         <CardTitle className="text-sm font-semibold ml-[-6px]">Input Script</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 px-4 pb-4">
+      <CardContent className="p-0">
         <Textarea
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}
           placeholder="Paste your tutorial script here..."
-          className="min-h-[100px] resize-none rounded-xl"
+          className="min-h-[100px] resize-none rounded-t-xl bg-[#f0faf0] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-4 py-2 bg-[#f0faf0] rounded-b-xl gap-2">
           <div className="flex-1">
             <ModelSelector
               selectedModel={selectedModel}
@@ -43,13 +43,13 @@ export function ScriptInputCard({
           <Button
             onClick={onAnalyze}
             disabled={loading || !script.trim()}
-            className="w-fit text-sm"
+            className="bg-[#4ade80] hover:bg-[#22c55e] text-sm rounded-lg px-6"
             variant="default"
           >
             {loading && (
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Analyze Script
+            Analyze
           </Button>
         </div>
       </CardContent>

@@ -19,36 +19,31 @@ export function ModelSelector({
   selectedModel,
   onModelChange,
 }: ModelSelectorProps) {
+  const selectedModelName = availableModels.find(m => m.id === selectedModel)?.name.replace(' (Google)', '') || 'Select a model';
+  
   return (
-    <div className="space-y-4">
-      <Select value={selectedModel} onValueChange={onModelChange}>
-        <SelectTrigger className="w-full text-sm border-none">
-          <SelectValue placeholder="Select a model">
-            {availableModels.find(m => m.id === selectedModel)?.name.split(' (')[0]}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {availableModels.map((model) => (
-            <SelectGroup key={model.id}>
-              <SelectItem value={model.id} className="py-2">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{model.name.replace(' (Google)', '')}</span>
-                    {!model.paid && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
-                        Free
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {model.description}
-                  </p>
-                </div>
-              </SelectItem>
-            </SelectGroup>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={selectedModel} onValueChange={onModelChange}>
+      <SelectTrigger className="w-full text-sm bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0 border-none text-gray-600 !p-0 !justify-start [&>svg]:ml-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50">
+        <SelectValue placeholder="Select a model" className="m-0">
+          {selectedModelName}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {availableModels.map((model) => (
+          <SelectGroup key={model.id}>
+            <SelectItem value={model.id} className="py-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">{model.name.replace(' (Google)', '')}</span>
+                {!model.paid && (
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    Free
+                  </Badge>
+                )}
+              </div>
+            </SelectItem>
+          </SelectGroup>
+        ))}
+      </SelectContent>
+    </Select>
   );
 } 

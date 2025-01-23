@@ -140,7 +140,6 @@ const HomePage = () => {
       toast.loading('Analyzing your script...', { id: 'analyze' });
       const result = await analyzeScriptAPI(script, selectedModel);
       toast.success('Analysis completed successfully', { id: 'analyze' });
-      // Store the result in localStorage so the analyze page can access it
       localStorage.setItem('scriptAnalysis', JSON.stringify(result));
       router.push('/analyze');
     } catch (error) {
@@ -174,31 +173,31 @@ const HomePage = () => {
 
   return (
     <RootLayout>
-      <div className="flex flex-col items-center justify-center min-h-[80vh] max-w-2xl mx-auto px-4">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-8">
+      <div className="flex flex-col items-center justify-center min-h-screen max-w-2xl mx-auto px-4">
+        <h1 className="text-3xl font-semibold mb-12">
           {greeting}
         </h1>
         
-        <Card className="w-full p-6">
-          <div className="mb-6">
-            <ModelSelector
-              selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
-            />
-          </div>
-          
+        <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100">
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
-            placeholder="Enter your script here..."
-            className="w-full min-h-[200px] p-4 text-base rounded-[20px] border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Type or paste your script here"
+            className="w-full min-h-[200px] p-6 text-base rounded-t-2xl bg-transparent resize-none focus:outline-none placeholder:text-gray-500"
           />
           
-          <div className="flex gap-4 mt-6">
+          <div className="w-full bg-gray-50 rounded-b-2xl px-[12px] py-[4px] pr-[6px] flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <ModelSelector
+                selectedModel={selectedModel}
+                onModelChange={setSelectedModel}
+              />
+            </div>
+            
             <Button 
-              className="flex-1"
               onClick={handleAnalyze}
               disabled={isAnalyzing || !script.trim()}
+              className="bg-[#4CD964] hover:bg-[#44c258] text-white px-[16px] py-[10px] rounded-lg disabled:text-gray-500 disabled:bg-gray-300 disabled:hover:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none"
             >
               {isAnalyzing ? (
                 <>
@@ -206,11 +205,11 @@ const HomePage = () => {
                   Analyzing...
                 </>
               ) : (
-                'Analyze Script'
+                'Analyze'
               )}
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     </RootLayout>
   );
