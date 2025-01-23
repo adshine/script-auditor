@@ -13,6 +13,7 @@ import type { ScriptAnalysis } from '@/lib/api';
 import { LanguageSelector } from '@/components/features/script-analysis/language-selector';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/constants';
 import { Logo } from '@/components/ui/logo';
+import { translations } from '@/lib/translations';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -121,6 +122,9 @@ const HomePage = () => {
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
   const [selectedModel, setSelectedModel] = useState(sortedModels[0].id);
 
+  // Get translations for the selected language
+  const t = translations[selectedLanguage] || translations.en;
+
   useEffect(() => {
     // Set initial greeting
     setGreeting(`${getGreeting()}, Adebimpe`);
@@ -177,16 +181,16 @@ const HomePage = () => {
 
   return (
     <RootLayout> 
-      <div className="flex flex-col items-center justify-center min-h-[100%] w-full max-w-2xl mx-auto px-4 -mt-20">
+      <div className="flex flex-col items-center justify-center min-h-[100vh] w-full max-w-2xl mx-auto px-4 -mt-20">
         <div className="text-center mb-6">
           <Logo />
           <p className="text-lg text-gray-600 mt-6 mb-2">
-            Hi there! Welcome to Script Auditor
+            {t.welcome}
           </p>
           <h1 className="text-4xl font-semibold text-gray-900 mb-2 min-w-full text-balance font-nunito">
-            Analyze and enhance
+            {t.heading.line1}
             <br />
-            your scripts with AI
+            {t.heading.line2}
           </h1>
         </div>
         
@@ -194,7 +198,7 @@ const HomePage = () => {
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
-            placeholder="Type or paste your script here"
+            placeholder={t.placeholder}
             className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
@@ -218,10 +222,10 @@ const HomePage = () => {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  {t.analyzing}
                 </>
               ) : (
-                'Analyze'
+                t.analyze
               )}
             </Button>
           </div>
