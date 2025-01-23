@@ -27,27 +27,31 @@ export function ScriptInputCard({
         <CardTitle className="text-sm font-semibold ml-[-6px]">Input Script</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 px-4 pb-4">
-        <ModelSelector
-          selectedModel={selectedModel}
-          onModelChange={onModelChange}
-        />
         <Textarea
           value={script}
           onChange={(e) => onScriptChange(e.target.value)}
           placeholder="Paste your tutorial script here..."
-          className="min-h-[120px] resize-none rounded-xl"
+          className="min-h-[100px] resize-none rounded-xl"
         />
-        <Button
-          onClick={onAnalyze}
-          disabled={loading || !script.trim()}
-          className="w-full"
-          variant="default"
-        >
-          {loading && (
-            <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-          )}
-          Analyze Script
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <ModelSelector
+              selectedModel={selectedModel}
+              onModelChange={onModelChange}
+            />
+          </div>
+          <Button
+            onClick={onAnalyze}
+            disabled={loading || !script.trim()}
+            className="w-fit text-sm"
+            variant="default"
+          >
+            {loading && (
+              <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Analyze Script
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
