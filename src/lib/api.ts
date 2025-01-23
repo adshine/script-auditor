@@ -71,7 +71,7 @@ async function analyzeText(prompt: string, model: string, language: string): Pro
     console.log('analyzeText: Making request to OpenRouter API with model:', model);
     
     const languageInstruction = language !== 'en' 
-      ? `IMPORTANT: Please analyze the script and respond ENTIRELY in ${language} language. All analysis, feedback, and improvements should be in ${language}.`
+      ? `IMPORTANT: You MUST respond ENTIRELY in ${language} language. This includes ALL analysis, feedback, improvements, and the rewritten script. DO NOT use any English. Translate all technical terms, suggestions, and visual cue markers to ${language}. Even JSON field values must be in ${language}.`
       : '';
 
     const response = await axios.post<OpenRouterResponse>(
