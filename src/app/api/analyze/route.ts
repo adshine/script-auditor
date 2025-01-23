@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Validate required fields
-    const { script, model } = body;
+    const { script, model, language = 'en' } = body;
     if (!script || !model) {
       console.log('API Route: Missing required fields:', { script: !!script, model: !!model });
       return NextResponse.json(
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     console.log('API Route: Starting script analysis with model:', model);
     try {
-      const analysis = await analyzeScript(script, model);
+      const analysis = await analyzeScript(script, model, language);
       console.log('API Route: Analysis completed successfully');
       return NextResponse.json(analysis);
     } catch (analysisError) {

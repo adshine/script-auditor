@@ -57,7 +57,7 @@ export interface ScriptAnalysis {
   rewrittenScript: RewrittenScript;
 }
 
-async function analyzeText(prompt: string, model: string): Promise<string> {
+async function analyzeText(prompt: string, model: string, language: string): Promise<string> {
   console.log('analyzeText: Starting API request');
   
   try {
@@ -69,11 +69,20 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
 
     const baseUrl = process.env.NEXT_PUBLIC_OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
     console.log('analyzeText: Making request to OpenRouter API with model:', model);
+    
+    const languageInstruction = language !== 'en' 
+      ? `IMPORTANT: Please analyze the script and respond ENTIRELY in ${language} language. All analysis, feedback, and improvements should be in ${language}.`
+      : '';
+
     const response = await axios.post<OpenRouterResponse>(
       `${baseUrl}/chat/completions`,
       {
         model,
         messages: [
+          {
+            role: 'system',
+            content: `You are a script analysis and improvement expert. ${languageInstruction}`
+          },
           {
             role: 'user',
             content: prompt,
@@ -178,7 +187,7 @@ async function analyzeText(prompt: string, model: string): Promise<string> {
   }
 }
 
-export async function analyzeScript(script: string, model: string): Promise<ScriptAnalysis> {
+export async function analyzeScript(script: string, model: string, language: string): Promise<ScriptAnalysis> {
   console.log('analyzeScript: Starting script analysis');
   
   try {
@@ -277,6 +286,7 @@ ${script}
 2. **Ensure all double quotes inside JSON strings are escaped** (e.g., \\\") to avoid invalid JSON.  
 3. **Include all required sections in your JSON** (analysis and rewrittenScript).  
 4. The rewritten script should achieve a readability score of at least 8.0 and incorporate all the marked improvements.
+5. **Respond in the language of the script** (if provided).
 
 Respond in JSON format exactly as follows:
 
@@ -313,9 +323,8 @@ Respond in JSON format exactly as follows:
 • 1:1 objective-practice alignment
 `;
 
-
     console.log('analyzeScript: Sending prompt to analyzeText');
-    const result = await analyzeText(prompt, model);
+    const result = await analyzeText(prompt, model, language);
     
     try {
       // Clean the response

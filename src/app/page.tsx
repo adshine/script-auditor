@@ -23,7 +23,7 @@ const getGreeting = () => {
   return 'Good Night'; // fallback, should never reach here
 };
 
-async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
+async function analyzeScriptAPI(script: string, model: string, language: string): Promise<ScriptAnalysis> {
   const maxRetries = 3;
   const baseDelay = 1000; // 1 second
 
@@ -34,7 +34,7 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`Attempt ${attempt}: Sending request with model ${model}`);
+      console.log(`Attempt ${attempt}: Sending request with model ${model} and language ${language}`);
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -43,7 +43,8 @@ async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAn
         },
         body: JSON.stringify({ 
           script: script.trim(),
-          model 
+          model,
+          language 
         }),
       });
 
@@ -142,7 +143,7 @@ const HomePage = () => {
     setIsAnalyzing(true);
     try {
       toast.loading('Analyzing your script...', { id: 'analyze' });
-      const result = await analyzeScriptAPI(script, selectedModel);
+      const result = await analyzeScriptAPI(script, selectedModel, selectedLanguage);
       toast.success('Analysis completed successfully', { id: 'analyze' });
       localStorage.setItem('scriptAnalysis', JSON.stringify(result));
       router.push('/analyze');
