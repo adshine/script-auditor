@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { ScriptAnalysis } from '@/lib/api';
 import { LanguageSelector } from '@/components/features/script-analysis/language-selector';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/constants';
+import { Logo } from '@/components/ui/logo';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -176,12 +177,20 @@ const HomePage = () => {
 
   return (
     <RootLayout> 
-      <div className="flex flex-col items-center justify-center min-h-screen max-w-2xl mx-auto px-4">
-        <h1 className="text-3xl font-semibold mb-6">
-          {greeting}
-        </h1>
+      <div className="flex flex-col items-center justify-center min-h-[100%] w-full max-w-2xl mx-auto px-4 -mt-20">
+        <div className="text-center mb-6">
+          <Logo />
+          <p className="text-lg text-gray-600 mt-6 mb-2">
+            Hi there! Welcome to Script Auditor
+          </p>
+          <h1 className="text-4xl font-semibold text-gray-900 mb-2 min-w-full text-balance font-nunito">
+            Analyze and enhance
+            <br />
+            your scripts with AI
+          </h1>
+        </div>
         
-        <div className="w-full bg-white rounded-2xl shadow-none border border-gray-100 mb-4 overflow-hidden">
+        <div className="w-full bg-white rounded-2xl shadow-none border border-gray-100 overflow-hidden">
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
@@ -189,7 +198,7 @@ const HomePage = () => {
             className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
-          <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-between justify-between gap-4 -mt-5 pt-4">
+          <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-between justify-between gap-4 -mt-5 pt-4 items-center">
             <div className="flex gap-2">
               <ModelSelector
                 selectedModel={selectedModel}

@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/constants";
+import { Check } from "lucide-react";
 
 interface LanguageSelectorProps {
   selectedLanguage: SupportedLanguage;
@@ -29,11 +30,19 @@ export function LanguageSelector({
       <SelectContent className="w-[220px]">
         {SUPPORTED_LANGUAGES.map((language) => (
           <SelectGroup key={language.id}>
-            <SelectItem value={language.id} className="relative py-3 px-4">
-              <div className="flex items-center gap-2 pl-6">
+            <SelectItem 
+              value={language.id} 
+              className="relative py-2 px-4 focus:bg-gray-50"
+            >
+              <div className="flex flex-col">
                 <span className="font-medium text-sm">{language.name}</span>
                 <span className="text-sm text-gray-500">{language.nativeName}</span>
               </div>
+              {language.id === selectedLanguage && (
+                <div className="absolute right-2 top-0 bottom-0 flex items-center">
+                  <Check className="h-4 w-4" />
+                </div>
+              )}
             </SelectItem>
           </SelectGroup>
         ))}

@@ -1,16 +1,9 @@
 import { Toaster } from "sonner";
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
-export function RootLayout({ children }: RootLayoutProps) {
+export function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <main className="min-h-screen bg-background">
-        {children}
-      </main>
-      <Toaster position="top-right" />
-    </>
+    <main className="max-h-[100vh] h-full w-full bg-white">
+      {children}
+    </main>
   );
 } 
