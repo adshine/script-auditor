@@ -10,6 +10,8 @@ import { ModelSelector } from '@/components/features/script-analysis/model-selec
 import { availableModels } from '@/lib/models';
 import { toast } from 'sonner';
 import type { ScriptAnalysis } from '@/lib/api';
+import { LanguageSelector } from '@/components/features/script-analysis/language-selector';
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/constants';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -112,6 +114,7 @@ const HomePage = () => {
   const [greeting, setGreeting] = useState('Welcome');
   const [script, setScript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(SUPPORTED_LANGUAGES[0].id);
   
   // Sort models by context window size and select the first one
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
@@ -186,11 +189,15 @@ const HomePage = () => {
             className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
-          <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-center justify-between gap-4 -mt-5 pt-4">
-            <div className="flex-1">
+          <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-between justify-between gap-4 -mt-5 pt-4">
+            <div className="flex gap-2">
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={setSelectedModel}
+              />
+              <LanguageSelector
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={setSelectedLanguage}
               />
             </div>
             
