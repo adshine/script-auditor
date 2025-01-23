@@ -172,7 +172,7 @@ const HomePage = () => {
   };
 
   return (
-    <RootLayout>
+    <RootLayout> 
       <div className="flex flex-col items-center justify-center min-h-screen max-w-2xl mx-auto px-4">
         <h1 className="text-3xl font-semibold mb-12">
           {greeting}
@@ -183,7 +183,7 @@ const HomePage = () => {
             value={script}
             onChange={(e) => setScript(e.target.value)}
             placeholder="Type or paste your script here"
-            className="w-full min-h-[200px] p-6 text-base rounded-t-2xl bg-transparent resize-none focus:outline-none placeholder:text-gray-500"
+            className="w-full max-h-[200px] p-6 text-base rounded-t-2xl bg-transparent resize-none focus:outline-none placeholder:text-gray-500"
           />
           
           <div className="w-full bg-gray-50 rounded-b-2xl px-[12px] py-[4px] pr-[6px] flex items-center justify-between gap-4">
@@ -197,7 +197,7 @@ const HomePage = () => {
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !script.trim()}
-              className="bg-[#4CD964] hover:bg-[#44c258] text-white px-[16px] py-[10px] rounded-lg disabled:text-gray-500 disabled:bg-gray-300 disabled:hover:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none"
+              className="bg-green-200 hover:bg-green-300 text-green-800 px-[16px] py-[10px] rounded-lg disabled:text-gray-500 disabled:bg-gray-200 disabled:hover:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none shadow-none"
             >
               {isAnalyzing ? (
                 <>

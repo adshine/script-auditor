@@ -28,14 +28,14 @@ export function ModelSelector({
           {selectedModelName}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="w-[280px]">
         {availableModels.map((model) => (
           <SelectGroup key={model.id}>
             <SelectItem value={model.id} className="py-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between">
                 <span className="font-medium text-sm">{model.name.replace(' (Google)', '')}</span>
                 {!model.paid && (
-                  <Badge variant="secondary" className="ml-2 text-xs">
+                  <Badge variant="secondary" className="ml-2 text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
                     Free
                   </Badge>
                 )}
