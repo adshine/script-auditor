@@ -28,11 +28,11 @@ export function ModelSelector({
           {selectedModelName}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="w-[280px]">
+      <SelectContent className="w-[320px]">
         {availableModels.map((model) => (
           <SelectGroup key={model.id}>
-            <SelectItem value={model.id} className="py-2">
-              <div className="flex items-center justify-between">
+            <SelectItem value={model.id} className="py-2 px-3">
+              <div className="flex items-center justify-between gap-3">
                 <span className="font-medium text-sm">{model.name.replace(' (Google)', '')}</span>
                 {!model.paid && (
                   <Badge variant="secondary" className="ml-2 text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
