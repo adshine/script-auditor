@@ -174,19 +174,19 @@ const HomePage = () => {
   return (
     <RootLayout> 
       <div className="flex flex-col items-center justify-center min-h-screen max-w-2xl mx-auto px-4">
-        <h1 className="text-3xl font-semibold mb-12">
+        <h1 className="text-3xl font-semibold mb-6">
           {greeting}
         </h1>
         
-        <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="w-full bg-white rounded-2xl shadow-none border border-gray-100 mb-4 overflow-hidden">
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
             placeholder="Type or paste your script here"
-            className="w-full max-h-[200px] p-6 text-base rounded-t-2xl bg-transparent resize-none focus:outline-none placeholder:text-gray-500"
+            className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
-          <div className="w-full bg-gray-50 rounded-b-2xl px-[12px] py-[4px] pr-[6px] flex items-center justify-between gap-4">
+          <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-center justify-between gap-4 -mt-5 pt-4">
             <div className="flex-1">
               <ModelSelector
                 selectedModel={selectedModel}
@@ -197,7 +197,7 @@ const HomePage = () => {
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !script.trim()}
-              className="bg-green-200 hover:bg-green-300 text-green-800 px-[16px] py-[10px] rounded-lg disabled:text-gray-500 disabled:bg-gray-200 disabled:hover:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none shadow-none"
+              className="bg-green-200 hover:bg-green-300 text-green-800 px-[16px] py-[1px] rounded-lg disabled:text-gray-500 disabled:border-gray-300 disabled:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed disabled:shadow-none shadow-none max-h-[32px] h-[32px]"
             >
               {isAnalyzing ? (
                 <>
