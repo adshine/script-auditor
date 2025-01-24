@@ -39,8 +39,8 @@ export function ScriptInputCard({
           placeholder={t.placeholder}
           className="min-h-[100px] resize-none rounded-t-xl bg-[#f0faf0] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
-        <div className="flex items-center justify-between px-4 py-2 bg-[#f0faf0] rounded-b-xl gap-2">
-          <div className="flex-1 flex items-center gap-4">
+        <div className="flex flex-col gap-3 px-4 py-3 bg-[#f0faf0] rounded-b-xl">
+          <div className="flex items-center gap-4">
             <ModelSelector
               selectedModel={selectedModel}
               onModelChange={onModelChange}
@@ -53,7 +53,7 @@ export function ScriptInputCard({
           <Button
             onClick={onAnalyze}
             disabled={loading || !script.trim()}
-            className="bg-[#4ade80] hover:bg-[#22c55e] text-sm rounded-lg px-6"
+            className="bg-[#4ade80] hover:bg-[#22c55e] text-sm rounded-lg w-full"
             variant="default"
           >
             {loading && (
