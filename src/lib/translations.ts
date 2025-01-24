@@ -15,6 +15,7 @@ export interface Translation {
       overallScore: string;
       prioritizedImprovements: string;
       technicalTerms: string;
+      scoreFormat: string;
       sections: {
         introduction: string;
         mainContent: string;
@@ -47,6 +48,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
         overallScore: 'Overall Score',
         prioritizedImprovements: 'Prioritized Improvements',
         technicalTerms: 'Technical Terms',
+        scoreFormat: '/10',
         sections: {
           introduction: 'Introduction',
           mainContent: 'Main Content',
@@ -77,6 +79,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
         overallScore: '总体评分',
         prioritizedImprovements: '优先改进项',
         technicalTerms: '技术术语',
+        scoreFormat: '/10',
         sections: {
           introduction: '引言',
           mainContent: '主要内容',
@@ -107,6 +110,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
         overallScore: 'Skor Keseluruhan',
         prioritizedImprovements: 'Perbaikan Prioritas',
         technicalTerms: 'Istilah Teknis',
+        scoreFormat: '/10',
         sections: {
           introduction: 'Pendahuluan',
           mainContent: 'Konten Utama',
@@ -135,8 +139,9 @@ export const translations: Record<SupportedLanguage, Translation> = {
       analysis: {
         title: 'विश्लेषण',
         overallScore: 'कुल स्कोर',
-        prioritizedImprovements: 'प्राथमिक सुधार',
+        prioritizedImprovements: 'प्राथमिकता वाले सुधार',
         technicalTerms: 'तकनीकी शब्द',
+        scoreFormat: '/१०',
         sections: {
           introduction: 'परिचय',
           mainContent: 'मुख्य सामग्री',
@@ -167,6 +172,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
         overallScore: 'Puntuación General',
         prioritizedImprovements: 'Mejoras Prioritarias',
         technicalTerms: 'Términos Técnicos',
+        scoreFormat: '/10',
         sections: {
           introduction: 'Introducción',
           mainContent: 'Contenido Principal',

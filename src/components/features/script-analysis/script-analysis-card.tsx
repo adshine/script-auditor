@@ -11,6 +11,8 @@ interface ScriptAnalysisCardProps {
 type SectionName = 'introduction' | 'mainContent' | 'conclusion';
 
 function ScoreIndicator({ score }: { score: number }) {
+  const { language } = useLanguageStore();
+  const t = translations[language].ui.analysis;
   let color;
   if (score >= 9) color = "bg-green-100 text-green-800";
   else if (score >= 8) color = "bg-blue-100 text-blue-800";
@@ -19,14 +21,18 @@ function ScoreIndicator({ score }: { score: number }) {
 
   return (
     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${color}`}>
-      {score.toFixed(1)}/10
+      {score.toFixed(1)}{t.scoreFormat}
     </div>
   );
 }
 
 function Suggestion({ text }: { text: string }) {
-  const isImplemented = text.includes("[IMPLEMENTED]");
-  const cleanText = text.replace("[IMPLEMENTED]", "").trim();
+  const isImplemented = text.includes("[IMPLEMENTED]") || text.includes("[कार्यान्वित]") || text.includes("[लागू]");
+  const cleanText = text
+    .replace("[IMPLEMENTED]", "")
+    .replace("[कार्यान्वित]", "")
+    .replace("[लागू]", "")
+    .trim();
   
   return (
     <div className="flex items-start gap-2 group">
