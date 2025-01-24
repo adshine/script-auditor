@@ -1,10 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import type { ScriptAnalysis } from '@/lib/api';
 import { Check, Circle } from "lucide-react";
+import { useLanguageStore } from '@/lib/stores/language-store';
+import { translations } from '@/lib/translations';
 
 interface ScriptAnalysisCardProps {
   analysis: ScriptAnalysis['analysis'];
 }
+
+type SectionName = 'introduction' | 'mainContent' | 'conclusion';
 
 function ScoreIndicator({ score }: { score: number }) {
   let color;
@@ -43,33 +47,40 @@ function Suggestion({ text }: { text: string }) {
 }
 
 export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
+  const { language } = useLanguageStore();
+  const t = translations[language].ui.analysis;
+
+  const cleanVisualCue = (text: string) => {
+    return text.replace(/\[VISUAL CUE:.*?\]/g, '').trim();
+  };
+
   return (
     <div>
       <div className="sticky top-0 bg-background z-10">
-        <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
+        <h2 className="text-l font-semibold py-3 px-4">{t.title}</h2>
         <hr className="border-t" />
       </div>
       <div className="space-y-6 px-4 mt-4">
         <div className="flex items-center justify-between border-b pb-2">
-          <h3 className="font-semibold mb-2 inline-block">Overall Score</h3>
+          <h3 className="font-semibold mb-2 inline-block">{t.overallScore}</h3>
           <ScoreIndicator score={analysis.overallScore} />
         </div>
 
         <div className="border-b pb-5"> 
-          <h3 className="font-semibold mb-2">Prioritized Improvements</h3>
+          <h3 className="font-semibold mb-2">{t.prioritizedImprovements}</h3>
           <div className="space-y-2">
             {analysis.prioritizedImprovements.map((improvement, index) => (
-              <Suggestion key={index} text={improvement} />
+              <Suggestion key={index} text={cleanVisualCue(improvement)} />
             ))}
           </div>
         </div>
 
         <div className="border-b pb-5">
-          <h3 className="font-semibold mb-2">Technical Terms</h3>
+          <h3 className="font-semibold mb-2">{t.technicalTerms}</h3>
           <div className="flex flex-wrap gap-2">
             {analysis.technicalTerms.map((term, index) => (
               <Badge key={index} variant="secondary">
-                {term}
+                {cleanVisualCue(term)}
               </Badge>
             ))}
           </div>
@@ -77,10 +88,12 @@ export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
 
         {Object.entries(analysis.sections).map(([sectionName, section]) => (
           <div key={sectionName} className="pb-5">
-            <h3 className="font-semibold mb-2 capitalize">{sectionName}</h3>
+            <h3 className="font-semibold mb-2 capitalize">
+              {t.sections[sectionName as SectionName] || sectionName}
+            </h3>
             <div className="space-y-2">
               {section.suggestions.map((suggestion, index) => (
-                <Suggestion key={index} text={suggestion} />
+                <Suggestion key={index} text={cleanVisualCue(suggestion)} />
               ))}
             </div>
           </div>
