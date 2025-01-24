@@ -3,46 +3,28 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SideTab } from '@/components/ui/side-tab';
+import { useLanguageStore } from '@/lib/stores/language-store';
+import { translations } from '@/lib/translations';
 
 interface RewrittenScriptCardProps {
   rewrittenScript: RewrittenScript;
-}
-
-function SideTab({ 
-  label, 
-  active, 
-  onClick 
-}: { 
-  label: string; 
-  active: boolean; 
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full text-left px-3 py-2 rounded-lg transition-colors",
-        "hover:bg-gray-100 dark:hover:bg-gray-800",
-        active && "bg-gray-100 dark:bg-gray-800 font-medium"
-      )}
-    >
-      {label}
-    </button>
-  );
 }
 
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
   const [copied, setCopied] = useState(false);
+  const { language } = useLanguageStore();
+  const t = translations[language].ui.rewrittenScript;
 
   const sections = useMemo(() => [
-    { id: "learning-objectives", label: "Learning Objectives" },
-    { id: "introduction", label: "Introduction" },
-    { id: "main-content", label: "Main Content" },
-    { id: "conclusion", label: "Conclusion" },
-    { id: "call-to-action", label: "Call to Action" }
-  ], []);
+    { id: "learning-objectives", label: t.learningObjectives },
+    { id: "introduction", label: t.introduction },
+    { id: "main-content", label: t.mainContent },
+    { id: "conclusion", label: t.conclusion },
+    { id: "call-to-action", label: t.callToAction }
+  ], [t]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -54,19 +36,19 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   const copyToClipboard = async () => {
     // Combine all content sections
-    const content = `Learning Objectives:
+    const content = `${t.learningObjectives}:
 ${rewrittenScript.learningObjectives.map(obj => `• ${obj}`).join('\n')}
 
-Introduction:
+${t.introduction}:
 ${rewrittenScript.introduction}
 
-Main Content:
+${t.mainContent}:
 ${rewrittenScript.mainContent}
 
-Conclusion:
+${t.conclusion}:
 ${rewrittenScript.conclusion}
 
-Call to Action:
+${t.callToAction}:
 ${rewrittenScript.callToAction}`;
 
     try {
@@ -123,7 +105,7 @@ ${rewrittenScript.callToAction}`;
     <div className="relative p-0">
       <div className="sticky top-0 z-10 bg-background pt-2 pb-2 border-b">
         <div className="flex justify-between items-center sticky top-0 px-4">
-          <h2 className="text-l font-semibold">Rewritten Script</h2>
+          <h2 className="text-l font-semibold">{t.title}</h2>
           <Button
             variant="outline"
             size="sm"
@@ -133,12 +115,12 @@ ${rewrittenScript.callToAction}`;
             {copied ? (
               <>
                 <Check className="h-4 w-4" />
-                <span>Copied!</span>
+                <span>{t.copied}</span>
               </>
             ) : (
               <>
                 <Copy className="h-4 w-4" />
-                <span>Copy All</span>
+                <span>{t.copyAll}</span>
               </>
             )}
           </Button>
@@ -161,7 +143,7 @@ ${rewrittenScript.callToAction}`;
         <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
           {/* Learning Objectives */}
           <section id="learning-objectives" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">Learning Objectives</h3>
+            <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
             <ul className="list-disc pl-6 space-y-1">
               {rewrittenScript.learningObjectives.map((objective, index) => (
                 <li key={index} className="text-muted-foreground">{objective}</li>
@@ -171,25 +153,25 @@ ${rewrittenScript.callToAction}`;
 
           {/* Introduction */}
           <section id="introduction" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">Introduction</h3>
+            <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
           </section>
 
           {/* Main Content */}
           <section id="main-content" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">Main Content</h3>
+            <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
           </section>
 
           {/* Conclusion */}
           <section id="conclusion" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">Conclusion</h3>
+            <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
           </section>
 
           {/* Call to Action */}
           <section id="call-to-action" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">Call to Action</h3>
+            <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
           </section>
         </div>

@@ -9,15 +9,17 @@ import { RewrittenScriptCard } from '@/components/features/script-analysis/rewri
 import { availableModels } from '@/lib/models';
 import type { ScriptAnalysis } from '@/lib/api';
 import { FileSearch, FileText } from 'lucide-react';
+import { useLanguageStore } from '@/lib/stores/language-store';
+import { translations } from '@/lib/translations';
 
-async function analyzeScriptAPI(script: string, model: string): Promise<ScriptAnalysis> {
+async function analyzeScriptAPI(script: string, model: string, language: string): Promise<ScriptAnalysis> {
   try {
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ script, model }),
+      body: JSON.stringify({ script, model, language }),
     });
 
     const data = await response.json();
@@ -49,6 +51,8 @@ export default function AnalyzePage() {
   const [script, setScript] = useState('');
   const [analysis, setAnalysis] = useState<ScriptAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const { language } = useLanguageStore();
+  const t = translations[language].ui;
 
   // Load stored analysis on mount
   useEffect(() => {
@@ -67,13 +71,13 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
-      toast.error('Please enter a script to analyze');
+      toast.error(t.input.placeholder);
       return;
     }
     
     setLoading(true);
     try {
-      const result = await analyzeScriptAPI(script, selectedModel);
+      const result = await analyzeScriptAPI(script, selectedModel, language);
       setAnalysis(result);
       toast.success('Script analysis completed successfully');
     } catch (error) {
@@ -96,14 +100,13 @@ export default function AnalyzePage() {
             ) : (
               <div className="h-full flex flex-col">
                 <div className="sticky top-0 bg-background z-10">
-                  <h2 className="text-l font-semibold py-3 px-4">Analysis</h2>
+                  <h2 className="text-l font-semibold py-3 px-4">{t.analysis.title}</h2>
                   <hr className="border-t" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
                   <FileSearch className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
                   <div className="space-y-1">
-                    <p>Enter your script</p>
-                    <p>and click analyze to see the results.</p>
+                    <p>{t.input.placeholder}</p>
                   </div>
                 </div>
               </div>
@@ -130,14 +133,13 @@ export default function AnalyzePage() {
           ) : (
             <div className="h-full flex flex-col">
               <div className="sticky top-0 bg-background z-10">
-                <h2 className="text-l font-semibold py-3 px-4">Rewritten Script</h2>
+                <h2 className="text-l font-semibold py-3 px-4">{t.rewrittenScript.title}</h2>
                 <hr className="border-t" />
               </div>
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
                 <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
                 <div className="space-y-1">
-                  <p>Your rewritten script will appear here</p>
-                  <p>after analysis.</p>
+                  <p>{t.rewrittenScript.title}</p>
                 </div>
               </div>
             </div>
