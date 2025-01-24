@@ -119,7 +119,7 @@ const HomePage = () => {
   const [script, setScript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { language, setLanguage } = useLanguageStore();
-  const t = translations[language].ui.input;
+  const t = translations[language].ui;
   
   // Sort models by context window size and select the first one
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
@@ -139,31 +139,31 @@ const HomePage = () => {
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
-      toast.error(t.placeholder);
+      toast.error(t.input.placeholder);
       return;
     }
 
     setIsAnalyzing(true);
     try {
-      toast.loading(t.analyzing || 'Analyzing your script...', { id: 'analyze' });
+      toast.loading(t.input.analyzing || 'Analyzing your script...', { id: 'analyze' });
       const result = await analyzeScriptAPI(script, selectedModel, language);
-      toast.success(t.analysisComplete || 'Analysis completed successfully', { id: 'analyze' });
+      toast.success(t.input.analysisComplete || 'Analysis completed successfully', { id: 'analyze' });
       localStorage.setItem('scriptAnalysis', JSON.stringify(result));
       router.push('/analyze');
     } catch (error) {
       console.error('Error analyzing script:', error);
-      const errorMessage = error instanceof Error ? error.message : t.analysisFailed || 'Failed to analyze script. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : t.input.analysisFailed || 'Failed to analyze script. Please try again.';
       
       if (errorMessage.toLowerCase().includes('rate limit')) {
         toast.error(
           <div className="flex flex-col gap-2">
-            <p>{t.rateLimitExceeded || 'Rate limit exceeded. Please wait a moment before trying again.'}</p>
+            <p>{t.input.rateLimitExceeded || 'Rate limit exceeded. Please wait a moment before trying again.'}</p>
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => window.location.reload()}
             >
-              {t.reload || 'Reload Page'}
+              {t.input.reload || 'Reload Page'}
             </Button>
           </div>,
           { 
@@ -185,12 +185,12 @@ const HomePage = () => {
         <div className="text-center mb-6">
           <Logo />
           <p className="text-lg text-gray-600 mt-6 mb-2">
-            {t.welcome || 'Hi there! Welcome to Script Auditor'}
+            {t.home.welcome}
           </p>
           <h1 className="text-4xl font-semibold text-gray-900 mb-2 min-w-full text-balance font-nunito">
-            {t.title || 'Analyze and enhance'}
+            {t.home.title}
             <br />
-            {t.subtitle || 'your scripts with AI'}
+            {t.home.subtitle}
           </h1>
         </div>
         
@@ -198,7 +198,7 @@ const HomePage = () => {
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
-            placeholder={t.placeholder}
+            placeholder={t.input.placeholder}
             className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
@@ -222,10 +222,10 @@ const HomePage = () => {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t.analyzing || 'Analyzing...'}
+                  {t.input.analyzing}
                 </>
               ) : (
-                t.analyze || 'Analyze'
+                t.input.analyze
               )}
             </Button>
           </div>

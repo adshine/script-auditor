@@ -10,6 +10,11 @@ export const SUPPORTED_LANGUAGES = {
 
 export interface Translation {
   ui: {
+    home: {
+      welcome: string;
+      title: string;
+      subtitle: string;
+    };
     analysis: {
       title: string;
       overallScore: string;
@@ -41,8 +46,6 @@ export interface Translation {
       analysisFailed: string;
       rateLimitExceeded: string;
       reload: string;
-      welcome: string;
-      subtitle: string;
     };
   };
 }
@@ -50,6 +53,11 @@ export interface Translation {
 export const translations: Record<SupportedLanguage, Translation> = {
   en: {
     ui: {
+      home: {
+        welcome: 'Hi there! Welcome to Script Auditor',
+        title: 'Analyze and enhance',
+        subtitle: 'your scripts with AI'
+      },
       analysis: {
         title: 'Analysis',
         overallScore: 'Overall Score',
@@ -80,14 +88,17 @@ export const translations: Record<SupportedLanguage, Translation> = {
         analysisComplete: 'Analysis completed successfully',
         analysisFailed: 'Failed to analyze script. Please try again.',
         rateLimitExceeded: 'Rate limit exceeded. Please wait a moment before trying again.',
-        reload: 'Reload Page',
-        welcome: 'Hi there! Welcome to Script Auditor',
-        subtitle: 'your scripts with AI'
+        reload: 'Reload Page'
       }
     }
   },
   zh: {
     ui: {
+      home: {
+        welcome: '您好！欢迎使用脚本审核工具',
+        title: '智能分析和优化',
+        subtitle: '让AI提升您的脚本质量'
+      },
       analysis: {
         title: '分析',
         overallScore: '总体评分',
@@ -118,14 +129,17 @@ export const translations: Record<SupportedLanguage, Translation> = {
         analysisComplete: '分析完成',
         analysisFailed: '分析失败，请重试。',
         rateLimitExceeded: '已超出速率限制。请稍后再试。',
-        reload: '重新加载页面',
-        welcome: '您好！欢迎使用脚本审核工具',
-        subtitle: '使用AI分析和增强您的脚本'
+        reload: '重新加载页面'
       }
     }
   },
   id: {
     ui: {
+      home: {
+        welcome: 'Hai! Selamat datang di Script Auditor',
+        title: 'Analisis dan tingkatkan',
+        subtitle: 'naskah Anda dengan Kecerdasan Buatan'
+      },
       analysis: {
         title: 'Analisis',
         overallScore: 'Skor Keseluruhan',
@@ -156,14 +170,17 @@ export const translations: Record<SupportedLanguage, Translation> = {
         analysisComplete: 'Analisis berhasil diselesaikan',
         analysisFailed: 'Gagal menganalisis naskah. Silakan coba lagi.',
         rateLimitExceeded: 'Batas kecepatan terlampaui. Harap tunggu sebentar sebelum mencoba lagi.',
-        reload: 'Muat Ulang Halaman',
-        welcome: 'Hai! Selamat datang di Script Auditor',
-        subtitle: 'naskah Anda dengan AI'
+        reload: 'Muat Ulang Halaman'
       }
     }
   },
   hi: {
     ui: {
+      home: {
+        welcome: 'नमस्ते! स्क्रिप्ट ऑडिटर में आपका स्वागत है',
+        title: 'विश्लेषण करें और बेहतर बनाएं',
+        subtitle: 'एआई के साथ अपनी स्क्रिप्ट को'
+      },
       analysis: {
         title: 'विश्लेषण',
         overallScore: 'कुल स्कोर',
@@ -194,14 +211,17 @@ export const translations: Record<SupportedLanguage, Translation> = {
         analysisComplete: 'विश्लेषण सफलतापूर्वक पूरा हुआ',
         analysisFailed: 'विश्लेषण विफल रहा। कृपया पुनः प्रयास करें।',
         rateLimitExceeded: 'दर सीमा पार हो गई। कृपया कुछ देर बाद प्रयास करें।',
-        reload: 'पेज रीलोड करें',
-        welcome: 'नमस्ते! स्क्रिप्ट ऑडिटर में आपका स्वागत है',
-        subtitle: 'एआई के साथ अपनी स्क्रिप्ट का विश्लेषण और सुधार करें'
+        reload: 'पेज रीलोड करें'
       }
     }
   },
   es: {
     ui: {
+      home: {
+        welcome: '¡Hola! Bienvenido a Script Auditor',
+        title: 'Analiza y mejora',
+        subtitle: 'tus scripts con Inteligencia Artificial'
+      },
       analysis: {
         title: 'Análisis',
         overallScore: 'Puntuación General',
@@ -232,9 +252,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
         analysisComplete: 'Análisis completado con éxito',
         analysisFailed: 'Error al analizar el script. Por favor, inténtalo de nuevo.',
         rateLimitExceeded: 'Límite de velocidad excedido. Por favor, espera un momento antes de intentarlo de nuevo.',
-        reload: 'Recargar Página',
-        welcome: '¡Hola! Bienvenido a Script Auditor',
-        subtitle: 'tus scripts con IA'
+        reload: 'Recargar Página'
       }
     }
   }
