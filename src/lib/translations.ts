@@ -36,6 +36,13 @@ export interface Translation {
       title: string;
       placeholder: string;
       analyze: string;
+      analyzing: string;
+      analysisComplete: string;
+      analysisFailed: string;
+      rateLimitExceeded: string;
+      reload: string;
+      welcome: string;
+      subtitle: string;
     };
   };
 }
@@ -67,8 +74,15 @@ export const translations: Record<SupportedLanguage, Translation> = {
       },
       input: {
         title: 'Input Script',
-        placeholder: 'Paste your tutorial script here...',
-        analyze: 'Analyze'
+        placeholder: 'Type or paste your script here...',
+        analyze: 'Analyze',
+        analyzing: 'Analyzing...',
+        analysisComplete: 'Analysis completed successfully',
+        analysisFailed: 'Failed to analyze script. Please try again.',
+        rateLimitExceeded: 'Rate limit exceeded. Please wait a moment before trying again.',
+        reload: 'Reload Page',
+        welcome: 'Hi there! Welcome to Script Auditor',
+        subtitle: 'your scripts with AI'
       }
     }
   },
@@ -98,8 +112,15 @@ export const translations: Record<SupportedLanguage, Translation> = {
       },
       input: {
         title: '输入脚本',
-        placeholder: '在此粘贴您的教程脚本...',
-        analyze: '分析'
+        placeholder: '在此输入或粘贴您的脚本...',
+        analyze: '分析',
+        analyzing: '分析中...',
+        analysisComplete: '分析完成',
+        analysisFailed: '分析失败，请重试。',
+        rateLimitExceeded: '已超出速率限制。请稍后再试。',
+        reload: '重新加载页面',
+        welcome: '您好！欢迎使用脚本审核工具',
+        subtitle: '使用AI分析和增强您的脚本'
       }
     }
   },
@@ -129,8 +150,15 @@ export const translations: Record<SupportedLanguage, Translation> = {
       },
       input: {
         title: 'Naskah Masukan',
-        placeholder: 'Tempel naskah tutorial Anda di sini...',
-        analyze: 'Analisis'
+        placeholder: 'Ketik atau tempel naskah Anda di sini...',
+        analyze: 'Analisis',
+        analyzing: 'Menganalisis...',
+        analysisComplete: 'Analisis berhasil diselesaikan',
+        analysisFailed: 'Gagal menganalisis naskah. Silakan coba lagi.',
+        rateLimitExceeded: 'Batas kecepatan terlampaui. Harap tunggu sebentar sebelum mencoba lagi.',
+        reload: 'Muat Ulang Halaman',
+        welcome: 'Hai! Selamat datang di Script Auditor',
+        subtitle: 'naskah Anda dengan AI'
       }
     }
   },
@@ -160,8 +188,15 @@ export const translations: Record<SupportedLanguage, Translation> = {
       },
       input: {
         title: 'इनपुट स्क्रिप्ट',
-        placeholder: 'अपनी ट्यूटोरियल स्क्रिप्ट यहाँ पेस्ट करें...',
-        analyze: 'विश्लेषण करें'
+        placeholder: 'अपनी स्क्रिप्ट यहाँ टाइप करें या पेस्ट करें...',
+        analyze: 'विश्लेषण करें',
+        analyzing: 'विश्लेषण हो रहा है...',
+        analysisComplete: 'विश्लेषण सफलतापूर्वक पूरा हुआ',
+        analysisFailed: 'विश्लेषण विफल रहा। कृपया पुनः प्रयास करें।',
+        rateLimitExceeded: 'दर सीमा पार हो गई। कृपया कुछ देर बाद प्रयास करें।',
+        reload: 'पेज रीलोड करें',
+        welcome: 'नमस्ते! स्क्रिप्ट ऑडिटर में आपका स्वागत है',
+        subtitle: 'एआई के साथ अपनी स्क्रिप्ट का विश्लेषण और सुधार करें'
       }
     }
   },
@@ -191,8 +226,15 @@ export const translations: Record<SupportedLanguage, Translation> = {
       },
       input: {
         title: 'Script de Entrada',
-        placeholder: 'Pega tu script de tutorial aquí...',
-        analyze: 'Analizar'
+        placeholder: 'Escribe o pega tu script aquí...',
+        analyze: 'Analizar',
+        analyzing: 'Analizando...',
+        analysisComplete: 'Análisis completado con éxito',
+        analysisFailed: 'Error al analizar el script. Por favor, inténtalo de nuevo.',
+        rateLimitExceeded: 'Límite de velocidad excedido. Por favor, espera un momento antes de intentarlo de nuevo.',
+        reload: 'Recargar Página',
+        welcome: '¡Hola! Bienvenido a Script Auditor',
+        subtitle: 'tus scripts con IA'
       }
     }
   }

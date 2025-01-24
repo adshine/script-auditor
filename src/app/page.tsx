@@ -13,6 +13,8 @@ import type { ScriptAnalysis } from '@/lib/api';
 import { LanguageSelector } from '@/components/features/script-analysis/language-selector';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/constants';
 import { Logo } from '@/components/ui/logo';
+import { useLanguageStore } from '@/lib/stores/language-store';
+import { translations } from '@/lib/translations';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -116,7 +118,8 @@ const HomePage = () => {
   const [greeting, setGreeting] = useState('Welcome');
   const [script, setScript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(SUPPORTED_LANGUAGES[0].id);
+  const { language, setLanguage } = useLanguageStore();
+  const t = translations[language].ui.input;
   
   // Sort models by context window size and select the first one
   const sortedModels = [...availableModels].sort((a, b) => b.contextWindow - a.contextWindow);
@@ -136,31 +139,31 @@ const HomePage = () => {
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
-      toast.error('Please enter a script to analyze');
+      toast.error(t.placeholder);
       return;
     }
 
     setIsAnalyzing(true);
     try {
-      toast.loading('Analyzing your script...', { id: 'analyze' });
-      const result = await analyzeScriptAPI(script, selectedModel, selectedLanguage);
-      toast.success('Analysis completed successfully', { id: 'analyze' });
+      toast.loading(t.analyzing || 'Analyzing your script...', { id: 'analyze' });
+      const result = await analyzeScriptAPI(script, selectedModel, language);
+      toast.success(t.analysisComplete || 'Analysis completed successfully', { id: 'analyze' });
       localStorage.setItem('scriptAnalysis', JSON.stringify(result));
       router.push('/analyze');
     } catch (error) {
       console.error('Error analyzing script:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze script. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : t.analysisFailed || 'Failed to analyze script. Please try again.';
       
       if (errorMessage.toLowerCase().includes('rate limit')) {
         toast.error(
           <div className="flex flex-col gap-2">
-            <p>Rate limit exceeded. Please wait a moment before trying again.</p>
+            <p>{t.rateLimitExceeded || 'Rate limit exceeded. Please wait a moment before trying again.'}</p>
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => window.location.reload()}
             >
-              Reload Page
+              {t.reload || 'Reload Page'}
             </Button>
           </div>,
           { 
@@ -182,12 +185,12 @@ const HomePage = () => {
         <div className="text-center mb-6">
           <Logo />
           <p className="text-lg text-gray-600 mt-6 mb-2">
-            Hi there! Welcome to Script Auditor
+            {t.welcome || 'Hi there! Welcome to Script Auditor'}
           </p>
           <h1 className="text-4xl font-semibold text-gray-900 mb-2 min-w-full text-balance font-nunito">
-            Analyze and enhance
+            {t.title || 'Analyze and enhance'}
             <br />
-            your scripts with AI
+            {t.subtitle || 'your scripts with AI'}
           </h1>
         </div>
         
@@ -195,7 +198,7 @@ const HomePage = () => {
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
-            placeholder="Type or paste your script here"
+            placeholder={t.placeholder}
             className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
           />
           
@@ -206,8 +209,8 @@ const HomePage = () => {
                 onModelChange={setSelectedModel}
               />
               <LanguageSelector
-                selectedLanguage={selectedLanguage}
-                onLanguageChange={setSelectedLanguage}
+                selectedLanguage={language}
+                onLanguageChange={setLanguage}
               />
             </div>
             
@@ -219,10 +222,10 @@ const HomePage = () => {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  {t.analyzing || 'Analyzing...'}
                 </>
               ) : (
-                'Analyze'
+                t.analyze || 'Analyze'
               )}
             </Button>
           </div>
