@@ -213,7 +213,7 @@ const HomePage = () => {
                 onLanguageChange={setLanguage}
               />
             </div>
-            x
+        
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !script.trim()}
