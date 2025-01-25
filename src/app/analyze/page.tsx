@@ -93,8 +93,17 @@ export default function AnalyzePage() {
     }
   };
 
-  const handleCopy = () => {
-    // Implementation of handleCopy function
+  const handleCopy = async () => {
+    if (!analysis) return;
+    
+    const fullScript = `${analysis.rewrittenScript.introduction}\n\n${analysis.rewrittenScript.mainContent}\n\n${analysis.rewrittenScript.conclusion}\n\n${analysis.rewrittenScript.callToAction}`;
+    
+    try {
+      await navigator.clipboard.writeText(fullScript);
+      toast.success(t.rewrittenScript.copied);
+    } catch (err) {
+      toast.error('Failed to copy to clipboard');
+    }
   };
 
   return (
@@ -178,7 +187,9 @@ export default function AnalyzePage() {
       {/* Analysis Modal for Mobile */}
       <Dialog open={showAnalysisModal} onOpenChange={setShowAnalysisModal}>
         <DialogContent className="max-w-full sm:max-w-[600px] h-[80vh] overflow-auto">
-          {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
+          <div className="pt-6">
+            {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
+          </div>
         </DialogContent>
       </Dialog>
     </RootLayout>
