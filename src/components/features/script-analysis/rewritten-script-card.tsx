@@ -1,14 +1,20 @@
-import type { RewrittenScript } from '@/lib/api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { cn } from '@/lib/utils';
-import { Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SideTab } from '@/components/ui/side-tab';
 import { useLanguageStore } from '@/lib/stores/language-store';
 import { translations } from '@/lib/translations';
+import { Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { SideTab } from '@/components/ui/side-tab';
+import { cn } from '@/lib/utils';
 
 interface RewrittenScriptCardProps {
-  rewrittenScript: RewrittenScript;
+  rewrittenScript: {
+    learningObjectives: string[];
+    introduction: string;
+    mainContent: string;
+    conclusion: string;
+    callToAction: string;
+  };
 }
 
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
@@ -34,29 +40,16 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
     }
   };
 
-  const copyToClipboard = async () => {
-    // Combine all content sections
-    const content = `${t.learningObjectives}:
-${rewrittenScript.learningObjectives.map(obj => `• ${obj}`).join('\n')}
-
-${t.introduction}:
-${rewrittenScript.introduction}
-
-${t.mainContent}:
-${rewrittenScript.mainContent}
-
-${t.conclusion}:
-${rewrittenScript.conclusion}
-
-${t.callToAction}:
-${rewrittenScript.callToAction}`;
-
+  const handleCopy = async () => {
+    const fullScript = `${rewrittenScript.introduction}\n\n${rewrittenScript.mainContent}\n\n${rewrittenScript.conclusion}\n\n${rewrittenScript.callToAction}`;
+    
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(fullScript);
       setCopied(true);
+      toast.success(t.copied);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      toast.error('Failed to copy to clipboard');
     }
   };
 
@@ -88,10 +81,7 @@ ${rewrittenScript.callToAction}`;
     const scrollContainer = container.parentElement;
     if (scrollContainer) {
       scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-      // Initial check
       handleScroll();
-
-      // Also check on window resize
       window.addEventListener('resize', handleScroll, { passive: true });
 
       return () => {
@@ -103,30 +93,8 @@ ${rewrittenScript.callToAction}`;
 
   return (
     <div className="relative p-0">
-      <div className="sticky top-0 z-10 bg-background pt-2 pb-2 border-b">
-        <div className="flex justify-between items-center sticky top-0 px-4">
-          <h2 className="text-l font-semibold">{t.title}</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={copyToClipboard}
-          >
-            {copied ? (
-              <>
-                <Check className="h-4 w-4" />
-                <span>{t.copied}</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4" />
-                <span>{t.copyAll}</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
       <div className="flex gap-6 pt-4">
+        {/* Navigation Sidebar - Desktop Only */}
         <div className="w-56 flex-shrink-0 hidden lg:block px-4">
           <div className="sticky top-24 space-y-1 pr-2">
             {sections.map((section) => (
@@ -140,6 +108,7 @@ ${rewrittenScript.callToAction}`;
           </div>
         </div>
         
+        {/* Content */}
         <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
           {/* Learning Objectives */}
           <section id="learning-objectives" className="pt-4 scroll-mt-32">
