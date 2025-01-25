@@ -57,7 +57,7 @@ export function ScriptInputCard({
             variant="ghost"
           >
             {loading && (
-              <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
+              <ArrowPathIcon className="mr-4 h-4 w-4 animate-spin" />
             )}
             {t.analyze}
           </Button>

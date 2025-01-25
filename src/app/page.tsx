@@ -213,7 +213,7 @@ const HomePage = () => {
                 onLanguageChange={setLanguage}
               />
             </div>
-            
+            x
             <Button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !script.trim()}
@@ -221,7 +221,7 @@ const HomePage = () => {
             >
               {isAnalyzing ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-4 h-4 w-4 animate-spin" />
                   {t.input.analyzing}
                 </>
               ) : (
