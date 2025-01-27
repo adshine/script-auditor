@@ -30,16 +30,17 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
   const [copied, setCopied] = useState(false);
   const { language } = useLanguageStore();
-  const t = translations[language].ui.rewrittenScript;
+  const t = translations[language].ui;
+  const rt = t.rewrittenScript; // Alias for rewritten script translations
   const { toast } = useToast();
 
   const sections = useMemo(() => [
-    { id: "learning-objectives", label: t.learningObjectives },
-    { id: "introduction", label: t.introduction },
-    { id: "main-content", label: t.mainContent },
-    { id: "conclusion", label: t.conclusion },
-    { id: "call-to-action", label: t.callToAction }
-  ], [t]);
+    { id: "learning-objectives", label: rt.learningObjectives },
+    { id: "introduction", label: rt.introduction },
+    { id: "main-content", label: rt.mainContent },
+    { id: "conclusion", label: rt.conclusion },
+    { id: "call-to-action", label: rt.callToAction }
+  ], [rt]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -136,7 +137,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
             <div ref={contentRef} className="flex-1 min-w-0 space-y-6 px-12">
               {/* Learning Objectives */}
               <section id="learning-objectives" className="pt-4 scroll-mt-32">
-                <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
+                <h3 className="font-medium text-foreground mb-2">{rt.learningObjectives}</h3>
                 <ul className="list-disc pl-6 space-y-1">
                   {rewrittenScript.learningObjectives.map((objective, index) => (
                     <li key={index} className="text-muted-foreground">{objective}</li>
@@ -146,35 +147,38 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
               {/* Introduction */}
               <section id="introduction" className="pt-4 scroll-mt-32">
-                <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
+                <h3 className="font-medium text-foreground mb-2">{rt.introduction}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
               </section>
 
               {/* Main Content */}
               <section id="main-content" className="pt-4 scroll-mt-32">
-                <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
+                <h3 className="font-medium text-foreground mb-2">{rt.mainContent}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
               </section>
 
               {/* Conclusion */}
               <section id="conclusion" className="pt-4 scroll-mt-32">
-                <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
+                <h3 className="font-medium text-foreground mb-2">{rt.conclusion}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
               </section>
 
               {/* Call to Action */}
               <section id="call-to-action" className="pt-4 scroll-mt-32">
-                <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
+                <h3 className="font-medium text-foreground mb-2">{rt.callToAction}</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
               </section>
             </div>
           </div>
         </>
       ) : (
-        <div className="h-full flex flex-col items-center justify-start pt-20 p-8 text-center text-muted-foreground text-sm space-y-4">
-          <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
-          <div className="space-y-1">
-            <p>Analysis</p>
+        <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+          <FileText className="h-12 w-12 text-muted-foreground/50 stroke-[1.5]" />
+          <div className="space-y-2">
+            <p className="text-base font-medium">Your Rewritten Script</p>
+            <p className="text-sm text-muted-foreground max-w-[280px]">
+              After the analysis is complete, your enhanced script will appear here with improvements and suggestions
+            </p>
           </div>
         </div>
       )}
