@@ -1,7 +1,6 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { ModelSelector } from './model-selector';
 import { LanguageSelector } from './language-selector';
 import { useLanguageStore } from '@/lib/stores/language-store';
@@ -28,41 +27,38 @@ export function ScriptInputCard({
   const t = translations[language].ui.input;
 
   return (
-    <Card className="shadow-none border-none bg-white rounded-2xl">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-sm font-medium text-[#666C7E]">{t.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Textarea
-          value={script}
-          onChange={(e) => onScriptChange(e.target.value)}
-          placeholder={t.placeholder}
-          className="min-h-[100px] resize-none rounded-2xl bg-white border border-[#E5E7EB] text-[#666C7E] placeholder:text-[#666C7E]/60 focus-visible:ring-1 focus-visible:ring-[#E5E7EB] focus-visible:border-[#E5E7EB]"
-        />
-        <div className="flex flex-col gap-3 px-4 py-3">
-          <div className="flex items-center gap-4">
-            <ModelSelector
-              selectedModel={selectedModel}
-              onModelChange={onModelChange}
-            />
-            <LanguageSelector
-              selectedLanguage={language}
-              onLanguageChange={setLanguage}
-            />
-          </div>
-          <Button
-            onClick={onAnalyze}
-            disabled={loading || !script.trim()}
-            className="bg-[#E2E8F0] hover:bg-[#CBD5E1] text-[#666C7E] text-sm font-medium rounded-xl w-full transition-colors"
-            variant="ghost"
-          >
-            {loading && (
-              <ArrowPathIcon className="mr-4 h-4 w-4 animate-spin" />
-            )}
-            {t.analyze}
-          </Button>
+    <div className="w-full bg-white rounded-2xl shadow-none border border-gray-100 overflow-hidden">
+      <textarea
+        value={script}
+        onChange={(e) => onScriptChange(e.target.value)}
+        placeholder={t.placeholder}
+        className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
+      />
+      
+      <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-between justify-between gap-4 -mt-5 pt-4 items-center">
+        <div className="flex gap-2">
+          <ModelSelector
+            selectedModel={selectedModel}
+            onModelChange={onModelChange}
+          />
+          <LanguageSelector
+            selectedLanguage={language}
+            onLanguageChange={setLanguage}
+          />
         </div>
-      </CardContent>
-    </Card>
+    
+        <Button
+          onClick={onAnalyze}
+          disabled={loading || !script.trim()}
+          className="bg-green-200 hover:bg-green-300 text-green-800 px-2 rounded-lg disabled:text-gray-500 disabled:border-gray-300 disabled:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed disabled:shadow-none shadow-none h-8 w-8"
+        >
+          {loading ? (
+            <ArrowPathIcon className="h-4 w-4 animate-spin" />
+          ) : (
+            <ArrowUpRight className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    </div>
   );
 } 

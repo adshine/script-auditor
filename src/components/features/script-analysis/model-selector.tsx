@@ -24,8 +24,8 @@ export function ModelSelector({
   
   return (
     <Select value={selectedModel} onValueChange={onModelChange}>
-      <SelectTrigger className="w-[240px] text-sm bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0 border-none text-gray-600 !p-0 !justify-start [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50">
-        <SelectValue placeholder="Select model" className="m-0">
+      <SelectTrigger className="w-[120px] text-sm bg-transparent hover:bg-transparent focus:ring-0 focus:ring-offset-0 border-none text-gray-600 !p-0 !justify-start [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50">
+        <SelectValue placeholder="Select model" className="m-0 truncate">
           {selectedModelName}
         </SelectValue>
       </SelectTrigger>

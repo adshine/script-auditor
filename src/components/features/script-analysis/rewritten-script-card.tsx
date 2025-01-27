@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { useLanguageStore } from '@/lib/stores/language-store';
 import { translations } from '@/lib/translations';
 import { Copy, Check, FileText } from 'lucide-react';
-import { toast } from 'sonner';
 import { SideTab } from '@/components/ui/side-tab';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { ScriptAnalysis } from '@/lib/api';
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface RewrittenScriptCardProps {
   rewrittenScript?: {
@@ -55,14 +55,22 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
       await navigator.clipboard.writeText(fullScript);
       
       toast({
-        title: t.copied,
-        description: t.copyAll
+        title: "Copied successfully",
+        description: "The script has been copied to your clipboard",
+        action: (
+          <ToastAction altText="Close">Close</ToastAction>
+        ),
       });
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
-        title: t.copyError,
-        description: t.copyError,
-        variant: "destructive"
+        variant: "destructive",
+        title: "Failed to copy",
+        description: "Please try copying the script again.",
+        action: (
+          <ToastAction altText="Try again" onClick={handleCopy}>Try again</ToastAction>
+        ),
       });
     }
   };
@@ -107,8 +115,20 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   return (
     <div className="relative p-0">
+      <div className="flex h-10 items-center justify-between px-4 border-b">
+        <h2 className="text-l font-semibold">Rewritten Script</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCopy}
+          className="gap-2"
+        >
+          <Copy className="h-4 w-4" />
+          <span>Copy All</span>
+        </Button>
+      </div>
       {rewrittenScript ? (
-        <div className="flex gap-6 pt-4">
+        <div className="flex gap-6">
           {/* Navigation Sidebar - Desktop Only */}
           <div className="w-56 flex-shrink-0 hidden lg:block px-4">
             <div className="sticky top-24 space-y-1 pr-2">
@@ -164,7 +184,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
         <div className="h-full flex flex-col items-center justify-start pt-20 p-8 text-center text-muted-foreground text-sm space-y-4">
           <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
           <div className="space-y-1">
-            <p>{t.title}</p>
+            <p>Analysis</p>
           </div>
         </div>
       )}
@@ -172,35 +192,15 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   );
 }
 
-export function ScriptAnalysisCard({ analysis, onCopy }: ScriptAnalysisCardProps) {
+export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
   const { language } = useLanguageStore();
   const t = translations[language].ui.analysis;
-  const rewrittenT = translations[language].ui.rewrittenScript;
-  const { toast } = useToast();
-
-  const handleCopy = () => {
-    if (onCopy) {
-      onCopy();
-      toast({
-        title: t.title,
-        description: rewrittenT.copied
-      });
-    }
-  };
 
   return (
     <div>
       <div className="sticky top-0 bg-background z-10">
         <div className="flex items-center justify-between py-3 px-4">
           <h2 className="text-l font-semibold">{t.title}</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCopy}
-            className="px-3"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
         </div>
         <hr className="border-t" />
       </div>
@@ -214,4 +214,4 @@ export function ScriptAnalysisCard({ analysis, onCopy }: ScriptAnalysisCardProps
       )}
     </div>
   );
-} 
+}
