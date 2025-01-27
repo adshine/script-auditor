@@ -115,71 +115,61 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   return (
     <div className="relative p-0">
-      <div className="flex h-10 items-center justify-between px-4 border-b">
-        <h2 className="text-l font-semibold">Rewritten Script</h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleCopy}
-          className="gap-2"
-        >
-          <Copy className="h-4 w-4" />
-          <span>Copy All</span>
-        </Button>
-      </div>
       {rewrittenScript ? (
-        <div className="flex gap-6">
-          {/* Navigation Sidebar - Desktop Only */}
-          <div className="w-56 flex-shrink-0 hidden lg:block px-4">
-            <div className="sticky top-24 space-y-1 pr-2">
-              {sections.map((section) => (
-                <SideTab
-                  key={section.id}
-                  label={section.label}
-                  active={activeSection === section.id}
-                  onClick={() => scrollToSection(section.id)}
-                />
-              ))}
+        <>
+          <div className="flex gap-6">
+            {/* Navigation Sidebar - Desktop Only */}
+            <div className="w-56 flex-shrink-0 hidden lg:block px-4">
+              <div className="sticky top-24 space-y-1 pr-2">
+                {sections.map((section) => (
+                  <SideTab
+                    key={section.id}
+                    label={section.label}
+                    active={activeSection === section.id}
+                    onClick={() => scrollToSection(section.id)}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div ref={contentRef} className="flex-1 min-w-0 space-y-6 px-12">
+              {/* Learning Objectives */}
+              <section id="learning-objectives" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
+                <ul className="list-disc pl-6 space-y-1">
+                  {rewrittenScript.learningObjectives.map((objective, index) => (
+                    <li key={index} className="text-muted-foreground">{objective}</li>
+                  ))}
+                </ul>
+              </section>
+
+              {/* Introduction */}
+              <section id="introduction" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
+              </section>
+
+              {/* Main Content */}
+              <section id="main-content" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
+              </section>
+
+              {/* Conclusion */}
+              <section id="conclusion" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
+              </section>
+
+              {/* Call to Action */}
+              <section id="call-to-action" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
+              </section>
             </div>
           </div>
-          
-          {/* Content */}
-          <div ref={contentRef} className="flex-1 min-w-0 space-y-6 px-12">
-            {/* Learning Objectives */}
-            <section id="learning-objectives" className="pt-4 scroll-mt-32">
-              <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
-              <ul className="list-disc pl-6 space-y-1">
-                {rewrittenScript.learningObjectives.map((objective, index) => (
-                  <li key={index} className="text-muted-foreground">{objective}</li>
-                ))}
-              </ul>
-            </section>
-
-            {/* Introduction */}
-            <section id="introduction" className="pt-4 scroll-mt-32">
-              <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-            </section>
-
-            {/* Main Content */}
-            <section id="main-content" className="pt-4 scroll-mt-32">
-              <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-            </section>
-
-            {/* Conclusion */}
-            <section id="conclusion" className="pt-4 scroll-mt-32">
-              <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-            </section>
-
-            {/* Call to Action */}
-            <section id="call-to-action" className="pt-4 scroll-mt-32">
-              <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
-            </section>
-          </div>
-        </div>
+        </>
       ) : (
         <div className="h-full flex flex-col items-center justify-start pt-20 p-8 text-center text-muted-foreground text-sm space-y-4">
           <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />

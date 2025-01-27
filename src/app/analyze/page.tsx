@@ -239,24 +239,52 @@ export default function AnalyzePage() {
 
         {/* Rewritten Script - Full Width on Mobile */}
         <div className="flex-1 overflow-auto pb-32">
-          {isMobile && (
-            <div className="sticky top-0 bg-background z-10 px-4 py-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAnalysisModal(true)}
-              >
-                View Analysis
-              </Button>
+          <div className="sticky top-0 bg-background z-10">
+            <div className="flex h-10 items-center justify-between px-4 border-b">
+              <h2 className="text-l font-semibold">{t.rewrittenScript.title}</h2>
+              <div className="flex items-center gap-2">
+                {isMobile && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAnalysisModal(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <FileSearch className="h-4 w-4" />
+                    {t.analysis.title}
+                  </Button>
+                )}
+                {analysis && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                    {t.rewrittenScript.copyAll}
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-          {analysis ? (
+          </div>
+          {loading ? (
+            <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+              <div className="animate-spin">
+                <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+              </div>
+              <div className="space-y-2">
+                <p className="font-medium">{t.input.analyzing}</p>
+                <p className="text-sm text-muted-foreground">{t.input.placeholder}</p>
+              </div>
+            </div>
+          ) : analysis ? (
             <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
           ) : (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
-              <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
-              <div className="space-y-1">
-                <p>{t.analysis.title}</p>
+            <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+              <FileText className="h-12 w-12 text-muted-foreground/50 stroke-[1.5]" />
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground max-w-[280px]">{t.input.placeholder}</p>
               </div>
             </div>
           )}
