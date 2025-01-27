@@ -2,13 +2,16 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguageStore } from '@/lib/stores/language-store';
 import { translations } from '@/lib/translations';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { SideTab } from '@/components/ui/side-tab';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import type { ScriptAnalysis } from '@/lib/api';
+import { useToast } from "@/hooks/use-toast";
 
 interface RewrittenScriptCardProps {
-  rewrittenScript: {
+  rewrittenScript?: {
     learningObjectives: string[];
     introduction: string;
     mainContent: string;
@@ -17,12 +20,18 @@ interface RewrittenScriptCardProps {
   };
 }
 
+interface ScriptAnalysisCardProps {
+  analysis: ScriptAnalysis['analysis'];
+  onCopy?: () => void;
+}
+
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
   const [copied, setCopied] = useState(false);
   const { language } = useLanguageStore();
   const t = translations[language].ui.rewrittenScript;
+  const { toast } = useToast();
 
   const sections = useMemo(() => [
     { id: "learning-objectives", label: t.learningObjectives },
@@ -41,15 +50,20 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   };
 
   const handleCopy = async () => {
-    const fullScript = `${rewrittenScript.introduction}\n\n${rewrittenScript.mainContent}\n\n${rewrittenScript.conclusion}\n\n${rewrittenScript.callToAction}`;
-    
     try {
+      const fullScript = `${rewrittenScript?.introduction}\n\n${rewrittenScript?.mainContent}\n\n${rewrittenScript?.conclusion}\n\n${rewrittenScript?.callToAction}`;
       await navigator.clipboard.writeText(fullScript);
-      setCopied(true);
-      toast.success(t.copied);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast.error('Failed to copy to clipboard');
+      
+      toast({
+        title: t.copied,
+        description: t.copyAll
+      });
+    } catch (error) {
+      toast({
+        title: t.copyError,
+        description: t.copyError,
+        variant: "destructive"
+      });
     }
   };
 
@@ -93,58 +107,111 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
 
   return (
     <div className="relative p-0">
-      <div className="flex gap-6 pt-4">
-        {/* Navigation Sidebar - Desktop Only */}
-        <div className="w-56 flex-shrink-0 hidden lg:block px-4">
-          <div className="sticky top-24 space-y-1 pr-2">
-            {sections.map((section) => (
-              <SideTab
-                key={section.id}
-                label={section.label}
-                active={activeSection === section.id}
-                onClick={() => scrollToSection(section.id)}
-              />
-            ))}
+      {rewrittenScript ? (
+        <div className="flex gap-6 pt-4">
+          {/* Navigation Sidebar - Desktop Only */}
+          <div className="w-56 flex-shrink-0 hidden lg:block px-4">
+            <div className="sticky top-24 space-y-1 pr-2">
+              {sections.map((section) => (
+                <SideTab
+                  key={section.id}
+                  label={section.label}
+                  active={activeSection === section.id}
+                  onClick={() => scrollToSection(section.id)}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Content */}
+          <div ref={contentRef} className="flex-1 min-w-0 space-y-6 px-12">
+            {/* Learning Objectives */}
+            <section id="learning-objectives" className="pt-4 scroll-mt-32">
+              <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
+              <ul className="list-disc pl-6 space-y-1">
+                {rewrittenScript.learningObjectives.map((objective, index) => (
+                  <li key={index} className="text-muted-foreground">{objective}</li>
+                ))}
+              </ul>
+            </section>
+
+            {/* Introduction */}
+            <section id="introduction" className="pt-4 scroll-mt-32">
+              <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
+            </section>
+
+            {/* Main Content */}
+            <section id="main-content" className="pt-4 scroll-mt-32">
+              <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
+            </section>
+
+            {/* Conclusion */}
+            <section id="conclusion" className="pt-4 scroll-mt-32">
+              <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
+            </section>
+
+            {/* Call to Action */}
+            <section id="call-to-action" className="pt-4 scroll-mt-32">
+              <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
+            </section>
           </div>
         </div>
-        
-        {/* Content */}
-        <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
-          {/* Learning Objectives */}
-          <section id="learning-objectives" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              {rewrittenScript.learningObjectives.map((objective, index) => (
-                <li key={index} className="text-muted-foreground">{objective}</li>
-              ))}
-            </ul>
-          </section>
-
-          {/* Introduction */}
-          <section id="introduction" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-          </section>
-
-          {/* Main Content */}
-          <section id="main-content" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-          </section>
-
-          {/* Conclusion */}
-          <section id="conclusion" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-          </section>
-
-          {/* Call to Action */}
-          <section id="call-to-action" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
-          </section>
+      ) : (
+        <div className="h-full flex flex-col items-center justify-start pt-20 p-8 text-center text-muted-foreground text-sm space-y-4">
+          <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+          <div className="space-y-1">
+            <p>{t.title}</p>
+          </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+export function ScriptAnalysisCard({ analysis, onCopy }: ScriptAnalysisCardProps) {
+  const { language } = useLanguageStore();
+  const t = translations[language].ui.analysis;
+  const rewrittenT = translations[language].ui.rewrittenScript;
+  const { toast } = useToast();
+
+  const handleCopy = () => {
+    if (onCopy) {
+      onCopy();
+      toast({
+        title: t.title,
+        description: rewrittenT.copied
+      });
+    }
+  };
+
+  return (
+    <div>
+      <div className="sticky top-0 bg-background z-10">
+        <div className="flex items-center justify-between py-3 px-4">
+          <h2 className="text-l font-semibold">{t.title}</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopy}
+            className="px-3"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
+        <hr className="border-t" />
       </div>
+      {!analysis && (
+        <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+          <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+          <div className="space-y-1">
+            <p>{t.title}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

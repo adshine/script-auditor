@@ -76,7 +76,7 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
-      toast.error(t.input.placeholder);
+      toast.error(t.analysis.title);
       return;
     }
     
@@ -93,8 +93,21 @@ export default function AnalyzePage() {
     }
   };
 
-  const handleCopy = () => {
-    // Implementation of handleCopy function
+  const handleCopy = async () => {
+    if (analysis?.rewrittenScript) {
+      try {
+        const fullScript = `${analysis.rewrittenScript.introduction}\n\n${analysis.rewrittenScript.mainContent}\n\n${analysis.rewrittenScript.conclusion}\n\n${analysis.rewrittenScript.callToAction}`;
+        await navigator.clipboard.writeText(fullScript);
+        
+        toast(t.rewrittenScript.copied, {
+          description: t.rewrittenScript.copyAll
+        });
+      } catch (error) {
+        toast.error(t.rewrittenScript.copyError, {
+          description: t.rewrittenScript.copyError
+        });
+      }
+    }
   };
 
   return (
@@ -108,13 +121,14 @@ export default function AnalyzePage() {
             ) : (
               <div className="h-full flex flex-col">
                 <div className="sticky top-0 bg-background z-10">
-                  <h2 className="text-l font-semibold py-3 px-4">{t.analysis.title}</h2>
-                  <hr className="border-t" />
+                  <div className="flex h-10 items-center justify-between px-4 border-b">
+                    <h2 className="text-l font-semibold">{t.analysis.title}</h2>
+                  </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
                   <FileSearch className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
                   <div className="space-y-1">
-                    <p>{t.input.placeholder}</p>
+                    <p>{t.analysis.title}</p>
                   </div>
                 </div>
               </div>
@@ -123,40 +137,39 @@ export default function AnalyzePage() {
         </div>
 
         {/* Rewritten Script - Full Width on Mobile */}
-        <div className="flex-1 overflow-auto">
-          {analysis ? (
-            <div className="relative">
-              <div className="flex items-center justify-between sticky top-0 bg-background z-10 p-4 border-b">
-                <h2 className="text-l font-semibold">{t.rewrittenScript.title}</h2>
-                <div className="flex items-center gap-2">
-                  {isMobile && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowAnalysisModal(true)}
-                      >
-                        View Analysis
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopy}
-                        className="px-3"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
+        <div className="flex-1 overflow-auto pb-32">
+          <div className="sticky top-0 bg-background z-10">
+            <div className="flex h-10 items-center justify-between px-4 border-b">
+              <h2 className="text-l font-semibold">{t.rewrittenScript.title}</h2>
+              <div className="flex items-center gap-2">
+                {isMobile && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAnalysisModal(true)}
+                  >
+                    View Analysis
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopy}
+                  className="px-3"
+                  disabled={!analysis}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
               </div>
-              <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
             </div>
+          </div>
+          {analysis ? (
+            <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
           ) : (
             <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
               <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
               <div className="space-y-1">
-                <p>{t.rewrittenScript.title}</p>
+                <p>{t.analysis.title}</p>
               </div>
             </div>
           )}
