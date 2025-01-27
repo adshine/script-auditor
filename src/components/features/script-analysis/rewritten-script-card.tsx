@@ -115,7 +115,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   }, [sections]);
 
   return (
-    <div className="relative p-0">
+    <div className="relative p-0" key="rewritten-script-card">
       {rewrittenScript ? (
         <>
           <div className="flex gap-6">
@@ -172,7 +172,7 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
           </div>
         </>
       ) : (
-        <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+        <div className="h-[calc(100vh-10rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
           <FileText className="h-12 w-12 text-muted-foreground/50 stroke-[1.5]" />
           <div className="space-y-2">
             <p className="text-base font-medium">Your Rewritten Script</p>

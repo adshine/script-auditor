@@ -278,15 +278,8 @@ export default function AnalyzePage() {
                 <p className="text-sm text-muted-foreground">{t.input.placeholder}</p>
               </div>
             </div>
-          ) : analysis ? (
-            <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
           ) : (
-            <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
-              <FileText className="h-12 w-12 text-muted-foreground/50 stroke-[1.5]" />
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground max-w-[280px]">{t.input.placeholder}</p>
-              </div>
-            </div>
+            <RewrittenScriptCard rewrittenScript={analysis?.rewrittenScript} />
           )}
         </div>
 
