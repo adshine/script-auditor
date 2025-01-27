@@ -100,9 +100,17 @@ export default function AnalyzePage() {
     
     try {
       await navigator.clipboard.writeText(fullScript);
-      toast.success(t.rewrittenScript.copied);
+      toast.success(t.rewrittenScript.copied, {
+        position: "top-right",
+        className: "z-[100]",
+        duration: 2000,
+      });
     } catch (err) {
-      toast.error('Failed to copy to clipboard');
+      toast.error('Failed to copy to clipboard', {
+        position: "top-right",
+        className: "z-[100]",
+        duration: 2000,
+      });
     }
   };
 
