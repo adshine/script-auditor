@@ -27,12 +27,12 @@ export function ScriptInputCard({
   const t = translations[language].ui.input;
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-none border border-gray-100 overflow-hidden">
+    <div className="w-full bg-white rounded-xl shadow-none border border-gray-100 overflow-hidden">
       <textarea
         value={script}
         onChange={(e) => onScriptChange(e.target.value)}
         placeholder={t.placeholder}
-        className="w-full max-h-[200px] p-3 pb-12 text-base rounded-2xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
+        className="w-full max-h-[200px] p-3 pb-12 text-base rounded-xl bg-white border border-gray-100 resize-none focus:outline-none placeholder:text-gray-500"
       />
       
       <div className="w-full bg-gray-50 px-[12px] py-[4px] pr-[6px] flex items-between justify-between gap-4 -mt-5 pt-4 items-center">

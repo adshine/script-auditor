@@ -284,7 +284,7 @@ export default function AnalyzePage() {
         </div>
 
         {/* Floating Input Card */}
-        <div className="absolute bottom-4 left-4 right-4 md:w-[367px] bg-background rounded-xl shadow-lg border">
+        <div className="absolute bottom-4 left-4 right-4 md:w-[367px] bg-background rounded-2xl shadow-lg border">
           <ScriptInputCard
             script={script}
             onScriptChange={setScript}
