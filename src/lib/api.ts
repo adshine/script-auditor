@@ -130,10 +130,10 @@ async function analyzeText(prompt: string, model: string, language: string): Pro
         .replace(/^\s+|\s+$/g, '')
         .replace(/[\u200B-\u200D\uFEFF]/g, '')
         .trim();
-      
+
       console.log('analyzeText: Cleaned content:', cleanContent);
       
-      try {
+    try {
         parsedContent = JSON.parse(cleanContent);
       } catch (jsonError) {
         console.error('analyzeText: JSON parse error on cleaned content:', jsonError);
@@ -150,8 +150,8 @@ async function analyzeText(prompt: string, model: string, language: string): Pro
       
       if (!parsedContent.analysis || !parsedContent.rewrittenScript) {
         throw new Error('Missing required top-level fields');
-      }
-      
+    }
+
       console.log('analyzeText: Successfully parsed and validated JSON');
       return cleanContent;
     } catch (parseError) {
@@ -259,13 +259,13 @@ Evaluate and improve the script based on these key areas:
 
 8. **Diversity Requirements**  
    - Examples must include:  
-     - ≥2 genders  
-     - ≥3 ethnicities  
-     - Age range: 20-65  
-     - ≥2 professions  
-     - ≥2 industries  
-     - ≥2 countries  
-     - ≥2 languages  
+   - ≥2 genders
+   - ≥3 ethnicities
+   - Age range: 20-65
+   - ≥2 professions
+   - ≥2 industries
+   - ≥2 countries
+   - ≥2 languages
 
 9. **Validation Requirements**  
    - Reject scripts with:  

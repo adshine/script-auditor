@@ -10,6 +10,7 @@ export interface AIModel {
     input: number;
     output: number;
   };
+  hidden?: boolean;
 }
 
 export const availableModels: AIModel[] = [
@@ -29,7 +30,8 @@ export const availableModels: AIModel[] = [
     description: "1M ctx, 1.55B tokens",
     contextWindow: 1000000,
     paid: false,
-    maxTokens: 1550000
+    maxTokens: 1550000,
+    hidden: true
   },
   {
     id: "google/gemini-flash-1.5-8b",
@@ -42,6 +44,7 @@ export const availableModels: AIModel[] = [
     pricing: {
       input: 0.0375,
       output: 0.15
-    }
+    },
+    hidden: true
   }
-].sort((a, b) => b.contextWindow - a.contextWindow); // Sort by context window size
+].filter(model => !model.hidden).sort((a, b) => b.contextWindow - a.contextWindow); // Filter out hidden models and sort by context window size

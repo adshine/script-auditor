@@ -54,8 +54,8 @@ async function analyzeScriptAPI(script: string, model: string, language: string)
       try {
         const textResponse = await response.text();
         console.log(`Attempt ${attempt}: Raw response:`, textResponse);
-        data = JSON.parse(textResponse);
-      } catch (parseError) {
+          data = JSON.parse(textResponse);
+        } catch (parseError) {
         console.error(`Attempt ${attempt}: Failed to parse response:`, parseError);
         if (attempt === maxRetries) {
           throw new Error('Failed to parse API response. Please try again.');
