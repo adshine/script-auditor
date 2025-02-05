@@ -192,21 +192,21 @@ export default function AnalyzePage() {
 
   const handleCopy = async () => {
     if (analysis?.rewrittenScript) {
-      try {
-        const fullScript = `${analysis.rewrittenScript.introduction}\n\n${analysis.rewrittenScript.mainContent}\n\n${analysis.rewrittenScript.conclusion}\n\n${analysis.rewrittenScript.callToAction}`;
-        await navigator.clipboard.writeText(fullScript);
-        
-        toast({
+    try {
+      const fullScript = `${analysis.rewrittenScript.introduction}\n\n${analysis.rewrittenScript.mainContent}\n\n${analysis.rewrittenScript.conclusion}\n\n${analysis.rewrittenScript.callToAction}`;
+      await navigator.clipboard.writeText(fullScript);
+      
+      toast({
           title: "Copied successfully!",
-          description: "Rewritten script has been copied to clipboard",
-          variant: "default"
-        });
-      } catch (error) {
-        toast({
-          title: t.rewrittenScript.copyError,
+        description: "Rewritten script has been copied to clipboard",
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: t.rewrittenScript.copyError,
           description: t.rewrittenScript.copyError,
           variant: "destructive"
-        });
+      });
       }
     }
   };
