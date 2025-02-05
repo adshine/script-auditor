@@ -15,6 +15,19 @@ export interface AIModel {
 
 export const availableModels: AIModel[] = [
   {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 Distill Llama 70B",
+    provider: "Groq",
+    description: "128k ctx, 275 tps, optimized for reasoning and problem-solving",
+    contextWindow: 128000,
+    paid: true,
+    maxTokens: 4096,
+    pricing: {
+      input: 0.0001,
+      output: 0.0002
+    }
+  },
+  {
     id: "google/gemini-2.0-flash-exp:free",
     name: "Gemini Flash 2.0 Experimental",
     provider: "Google",

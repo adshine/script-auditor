@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { LLMResponseHandler } from './json-validator';
 
 interface Message {
   role: 'system' | 'user' | 'assistant';
@@ -57,133 +58,209 @@ export interface ScriptAnalysis {
   rewrittenScript: RewrittenScript;
 }
 
+const responseHandler = new LLMResponseHandler();
+
 async function analyzeText(prompt: string, model: string, language: string): Promise<string> {
   console.log('analyzeText: Starting API request');
   
   try {
-    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      console.error('analyzeText: Neither NEXT_PUBLIC_OPENROUTER_API_KEY nor OPENROUTER_API_KEY is set in environment variables');
-      throw new Error('API key not configured');
-    }
+    let apiKey: string | undefined;
+    let baseUrl: string;
+    let headers: Record<string, string>;
+    let requestBody: any;
 
-    const baseUrl = process.env.NEXT_PUBLIC_OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-    console.log('analyzeText: Making request to OpenRouter API with model:', model);
-    
     const languageInstruction = language !== 'en' 
-      ? `IMPORTANT: You MUST respond ENTIRELY in ${language} language. This includes ALL analysis, feedback, improvements, and the rewritten script. DO NOT use any English. Translate all technical terms, suggestions, and visual cue markers to ${language}. Even JSON field values must be in ${language}.`
+      ? `IMPORTANT: You MUST respond ENTIRELY in ${language} language. This includes ALL analysis, feedback, improvements, and the rewritten script. DO NOT use any English. Translate all technical terms, suggestions, and visual cue markers to ${language}.`
       : '';
 
-    const response = await axios.post<OpenRouterResponse>(
-      `${baseUrl}/chat/completions`,
-      {
-        model,
+    // Enhance the prompt with JSON formatting instructions
+    const enhancedPrompt = responseHandler.enhancePrompt(prompt);
+
+    if (model.includes('deepseek-r1-distill-llama')) {
+      // Groq Cloud API
+      apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        console.error('analyzeText: Neither NEXT_PUBLIC_GROQ_API_KEY nor GROQ_API_KEY is set in environment variables');
+        throw new Error('Groq API key not configured');
+      }
+      baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      };
+
+      // Groq-specific request body
+      requestBody = {
+        model: 'deepseek-r1-distill-llama-70b',
         messages: [
           {
             role: 'system',
-            content: `You are a script analysis and improvement expert. ${languageInstruction}`
+            content: `You are a script analysis and improvement expert who MUST ALWAYS return COMPLETE, VALID JSON responses.
+
+CRITICAL JSON RULES:
+1. NEVER truncate or leave JSON incomplete
+2. ALWAYS close all brackets and braces
+3. ALWAYS escape quotes in strings
+4. NEVER include markdown code blocks
+5. NEVER include explanatory text outside the JSON
+6. VERIFY your response is complete before returning
+7. If response is long, reduce verbosity but maintain valid JSON structure
+8. Double-check all required fields are present
+9. Ensure all arrays and objects are properly terminated
+10. Properly escape all special characters in strings
+
+${languageInstruction}`
           },
           {
             role: 'user',
-            content: prompt,
+            content: enhancedPrompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000, // Reduced from 4000 to help with rate limits
+        top_p: 0.9,
+        stream: false
+      };
+    } else if (model.includes('gemini')) {
+      // OpenRouter API for Gemini
+      apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        console.error('analyzeText: Neither NEXT_PUBLIC_OPENROUTER_API_KEY nor OPENROUTER_API_KEY is set in environment variables');
+        throw new Error('OpenRouter API key not configured');
+      }
+      baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': 'Script Auditor',
+        'Content-Type': 'application/json'
+      };
+
+      // OpenRouter request body for Gemini
+      requestBody = {
+        model: model, // Keep the full model name for OpenRouter
+        messages: [
+          {
+            role: 'system',
+            content: `You are a script analysis and improvement expert who MUST ALWAYS return COMPLETE, VALID JSON responses.
+
+CRITICAL JSON RULES:
+1. NEVER truncate or leave JSON incomplete
+2. ALWAYS close all brackets and braces
+3. ALWAYS escape quotes in strings
+4. NEVER include markdown code blocks
+5. NEVER include explanatory text outside the JSON
+6. VERIFY your response is complete before returning
+7. If response is long, reduce verbosity but maintain valid JSON structure
+8. Double-check all required fields are present
+9. Ensure all arrays and objects are properly terminated
+10. Properly escape all special characters in strings
+
+${languageInstruction}`
+          },
+          {
+            role: 'user',
+            content: enhancedPrompt,
           },
         ],
         max_tokens: 4000,
         temperature: 0.7,
         response_format: { type: "json_object" },
         seed: 42,
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-          'X-Title': 'Script Auditor',
-        },
-      }
-    );
-
-    console.log('analyzeText: Response status:', response.status);
-    
-    // Log the raw response for debugging
-    console.log('analyzeText: Raw response:', JSON.stringify(response.data, null, 2));
-    
-    if (!response.data || !response.data.choices || !response.data.choices.length) {
-      console.error('analyzeText: Invalid API response structure:', response.data);
-      throw new Error('Invalid API response structure');
-    }
-
-    const content = response.data.choices[0]?.message?.content;
-    if (!content) {
-      console.error('analyzeText: No content in API response:', response.data.choices[0]);
-      throw new Error('No content in API response');
-    }
-
-    console.log('analyzeText: Raw content received:', content);
-
-    // Try to parse the content as JSON to validate it early
-    let parsedContent;
-    try {
-      // First clean the content of any markdown formatting or extra whitespace
-      const cleanContent = content
-        .replace(/^```json\s*/, '')
-        .replace(/\s*```$/, '')
-        .replace(/^\s+|\s+$/g, '')
-        .replace(/[\u200B-\u200D\uFEFF]/g, '')
-        .trim();
-
-      console.log('analyzeText: Cleaned content:', cleanContent);
-      
-    try {
-        parsedContent = JSON.parse(cleanContent);
-      } catch (jsonError) {
-        console.error('analyzeText: JSON parse error on cleaned content:', jsonError);
-        console.error('analyzeText: Failed cleaned content:', cleanContent);
-        // Try parsing the original content as a fallback
-        console.log('analyzeText: Attempting to parse original content');
-        parsedContent = JSON.parse(content);
-      }
-      
-      // Additional validation of the parsed content
-      if (!parsedContent || typeof parsedContent !== 'object') {
-        throw new Error('Parsed content is not an object');
-      }
-      
-      if (!parsedContent.analysis || !parsedContent.rewrittenScript) {
-        throw new Error('Missing required top-level fields');
-    }
-
-      console.log('analyzeText: Successfully parsed and validated JSON');
-      return cleanContent;
-    } catch (parseError) {
-      console.error('analyzeText: JSON parse error:', parseError);
-      console.error('analyzeText: Failed content:', content);
-      if (typeof content === 'string' && content.includes('<')) {
-        console.error('analyzeText: Response contains HTML - likely an error page');
-        throw new Error('Received HTML instead of JSON - API endpoint may be incorrect or returning an error page');
-      }
-      throw new Error(`API response is not valid JSON: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
-    }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('analyzeText: OpenRouter API error details:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: {
-            ...error.config?.headers,
-            'Authorization': '***'
-          }
-        }
-      });
-      throw new Error(`OpenRouter API error: ${error.response?.data?.error || error.message}`);
+        stream: false,
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1
+      };
     } else {
-      console.error('analyzeText: Unexpected error:', error);
-      throw error;
+      throw new Error(`Unsupported model: ${model}`);
     }
+
+    console.log('analyzeText: Making request to API with model:', model);
+    console.log('analyzeText: Request body:', JSON.stringify(requestBody, null, 2));
+    
+    let retryCount = 0;
+    const maxRetries = 3;
+    const baseDelay = 5000; // 5 seconds
+
+    while (retryCount < maxRetries) {
+      try {
+        const response = await axios.post<OpenRouterResponse>(
+          baseUrl,
+          requestBody,
+          { headers }
+        );
+
+        console.log('analyzeText: Response status:', response.status);
+        console.log('analyzeText: Full response:', JSON.stringify(response.data, null, 2));
+        
+        if (!response.data || !response.data.choices || !response.data.choices.length) {
+          console.error('analyzeText: Invalid API response structure:', response.data);
+          throw new Error('Invalid API response structure');
+        }
+
+        const content = response.data.choices[0]?.message?.content;
+        if (!content) {
+          console.error('analyzeText: No content in API response:', response.data.choices[0]);
+          throw new Error('No content in API response');
+        }
+
+        console.log('analyzeText: Raw content received:', content);
+
+        // Clean and validate the response
+        const cleanedContent = responseHandler.cleanResponse(content);
+        console.log('analyzeText: Cleaned content:', cleanedContent);
+
+        // Try to validate the content structure early
+        try {
+          responseHandler.parseAndValidate(cleanedContent);
+          console.log('analyzeText: Successfully validated JSON structure');
+          return cleanedContent;
+        } catch (validationError) {
+          console.error('analyzeText: Validation error:', validationError);
+          throw validationError;
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data?.error?.message || error.response?.data?.error || error.message;
+          
+          // Check if it's a rate limit error
+          if (errorMessage.includes('Rate limit reached')) {
+            const waitTimeMatch = errorMessage.match(/try again in (\d+\.?\d*)s/);
+            let waitTime = waitTimeMatch ? parseFloat(waitTimeMatch[1]) * 1000 : baseDelay * Math.pow(2, retryCount);
+            
+            console.log(`analyzeText: Rate limit reached. Waiting ${waitTime/1000}s before retry ${retryCount + 1}/${maxRetries}`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            retryCount++;
+            continue;
+          }
+          
+          console.error('analyzeText: API error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            message: error.message,
+            config: {
+              url: error.config?.url,
+              method: error.config?.method,
+              headers: {
+                ...error.config?.headers,
+                'Authorization': '***'
+              }
+            }
+          });
+          throw new Error(`API error: ${errorMessage}`);
+        } else {
+          console.error('analyzeText: Unexpected error:', error);
+          throw error;
+        }
+      }
+    }
+
+    throw new Error(`Failed after ${maxRetries} retries`);
+  } catch (error) {
+    console.error('analyzeText: Final error:', error);
+    throw error;
   }
 }
 
