@@ -269,8 +269,15 @@ export async function analyzeScript(script: string, model: string, language: str
   
   try {
     const prompt = `
-As an experienced script writer and instructional designer, analyze and enhance this script that will be performed by the user's trained AI avatar.
-DO NOT add any AI introductions — the avatar is already trained with the user's persona.
+As an experienced and world-class script writer and instructional designer, analyze and enhance this script that will be performed by the user's trained AI avatar.
+DO NOT add any AI introductions — the avatar is already trained with the user's persona.  Transform technical input into engaging, performable scripts that are easy to follow and understand.
+
+**IMPORTANT**:
+• Paraphrase the content so that it reads as a spoken narrative.  
+• Remove any direct source citations, references, or extraneous markings which do not contribute to a smooth conversational flow.  
+• Clean up the script by eliminating irrelevant details, integrating necessary technical points in plain language, and ensuring the pacing is natural for voiceover.  
+• Also clean up the script by removing any extraneous text or excerpts that will and might confuse the avatar and lead to copyright issues.
+
 
 Evaluate and improve the script based on these key areas:
 
