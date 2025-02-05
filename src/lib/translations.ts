@@ -36,6 +36,7 @@ export interface Translation {
       callToAction: string;
       copyAll: string;
       copied: string;
+      copyError: string;
     };
     input: {
       title: string;
@@ -78,7 +79,8 @@ export const translations: Record<SupportedLanguage, Translation> = {
         conclusion: 'Conclusion',
         callToAction: 'Call to Action',
         copyAll: 'Copy All',
-        copied: 'Copied!'
+        copied: 'Copied to clipboard!',
+        copyError: 'Failed to copy to clipboard'
       },
       input: {
         title: 'Input Script',
@@ -119,7 +121,8 @@ export const translations: Record<SupportedLanguage, Translation> = {
         conclusion: '结论',
         callToAction: '行动号召',
         copyAll: '复制全部',
-        copied: '已复制！'
+        copied: '已复制！',
+        copyError: '复制失败'
       },
       input: {
         title: '输入脚本',
@@ -160,7 +163,8 @@ export const translations: Record<SupportedLanguage, Translation> = {
         conclusion: 'Kesimpulan',
         callToAction: 'Ajakan Bertindak',
         copyAll: 'Salin Semua',
-        copied: 'Tersalin!'
+        copied: 'Tersalin!',
+        copyError: 'Gagal menyalin ke clipboard'
       },
       input: {
         title: 'Naskah Masukan',
@@ -201,7 +205,8 @@ export const translations: Record<SupportedLanguage, Translation> = {
         conclusion: 'निष्कर्ष',
         callToAction: 'कार्रवाई के लिए आह्वान',
         copyAll: 'सभी कॉपी करें',
-        copied: 'कॉपी किया गया!'
+        copied: 'कॉपी किया गया!',
+        copyError: 'क्लिपबोर्ड में कॉपी करने में विफल'
       },
       input: {
         title: 'इनपुट स्क्रिप्ट',
@@ -242,7 +247,8 @@ export const translations: Record<SupportedLanguage, Translation> = {
         conclusion: 'Conclusión',
         callToAction: 'Llamada a la Acción',
         copyAll: 'Copiar Todo',
-        copied: '¡Copiado!'
+        copied: '¡Copiado!',
+        copyError: 'Error al copiar al portapapeles'
       },
       input: {
         title: 'Script de Entrada',

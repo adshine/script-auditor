@@ -10,9 +10,23 @@ export interface AIModel {
     input: number;
     output: number;
   };
+  hidden?: boolean;
 }
 
 export const availableModels: AIModel[] = [
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 Distill Llama 70B",
+    provider: "Groq",
+    description: "128k ctx, 275 tps, optimized for reasoning and problem-solving",
+    contextWindow: 128000,
+    paid: true,
+    maxTokens: 4096,
+    pricing: {
+      input: 0.0001,
+      output: 0.0002
+    }
+  },
   {
     id: "google/gemini-2.0-flash-exp:free",
     name: "Gemini Flash 2.0 Experimental",
@@ -29,7 +43,8 @@ export const availableModels: AIModel[] = [
     description: "1M ctx, 1.55B tokens",
     contextWindow: 1000000,
     paid: false,
-    maxTokens: 1550000
+    maxTokens: 1550000,
+    hidden: true
   },
   {
     id: "google/gemini-flash-1.5-8b",
@@ -42,6 +57,7 @@ export const availableModels: AIModel[] = [
     pricing: {
       input: 0.0375,
       output: 0.15
-    }
+    },
+    hidden: true
   }
-].sort((a, b) => b.contextWindow - a.contextWindow); // Sort by context window size
+].filter(model => !model.hidden).sort((a, b) => b.contextWindow - a.contextWindow); // Filter out hidden models and sort by context window size

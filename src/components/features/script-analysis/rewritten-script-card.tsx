@@ -2,13 +2,16 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguageStore } from '@/lib/stores/language-store';
 import { translations } from '@/lib/translations';
-import { Copy, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { Copy, Check, FileText } from 'lucide-react';
 import { SideTab } from '@/components/ui/side-tab';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import type { ScriptAnalysis } from '@/lib/api';
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface RewrittenScriptCardProps {
-  rewrittenScript: {
+  rewrittenScript?: {
     learningObjectives: string[];
     introduction: string;
     mainContent: string;
@@ -17,20 +20,27 @@ interface RewrittenScriptCardProps {
   };
 }
 
+interface ScriptAnalysisCardProps {
+  analysis: ScriptAnalysis['analysis'];
+  onCopy?: () => void;
+}
+
 export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>("learning-objectives");
   const [copied, setCopied] = useState(false);
   const { language } = useLanguageStore();
-  const t = translations[language].ui.rewrittenScript;
+  const t = translations[language].ui;
+  const rt = t.rewrittenScript; // Alias for rewritten script translations
+  const { toast } = useToast();
 
   const sections = useMemo(() => [
-    { id: "learning-objectives", label: t.learningObjectives },
-    { id: "introduction", label: t.introduction },
-    { id: "main-content", label: t.mainContent },
-    { id: "conclusion", label: t.conclusion },
-    { id: "call-to-action", label: t.callToAction }
-  ], [t]);
+    { id: "learning-objectives", label: rt.learningObjectives },
+    { id: "introduction", label: rt.introduction },
+    { id: "main-content", label: rt.mainContent },
+    { id: "conclusion", label: rt.conclusion },
+    { id: "call-to-action", label: rt.callToAction }
+  ], [rt]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -41,15 +51,28 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   };
 
   const handleCopy = async () => {
-    const fullScript = `${rewrittenScript.introduction}\n\n${rewrittenScript.mainContent}\n\n${rewrittenScript.conclusion}\n\n${rewrittenScript.callToAction}`;
-    
     try {
+      const fullScript = `${rewrittenScript?.introduction}\n\n${rewrittenScript?.mainContent}\n\n${rewrittenScript?.conclusion}\n\n${rewrittenScript?.callToAction}`;
       await navigator.clipboard.writeText(fullScript);
+      
+      toast({
+        title: "Copied successfully",
+        description: "The script has been copied to your clipboard",
+        action: (
+          <ToastAction altText="Close">Close</ToastAction>
+        ),
+      });
       setCopied(true);
-      toast.success(t.copied);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast.error('Failed to copy to clipboard');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Failed to copy",
+        description: "Please try copying the script again.",
+        action: (
+          <ToastAction altText="Try again" onClick={handleCopy}>Try again</ToastAction>
+        ),
+      });
     }
   };
 
@@ -92,59 +115,97 @@ export function RewrittenScriptCard({ rewrittenScript }: RewrittenScriptCardProp
   }, [sections]);
 
   return (
-    <div className="relative p-0">
-      <div className="flex gap-6 pt-4">
-        {/* Navigation Sidebar - Desktop Only */}
-        <div className="w-56 flex-shrink-0 hidden lg:block px-4">
-          <div className="sticky top-24 space-y-1 pr-2">
-            {sections.map((section) => (
-              <SideTab
-                key={section.id}
-                label={section.label}
-                active={activeSection === section.id}
-                onClick={() => scrollToSection(section.id)}
-              />
-            ))}
+    <div className="relative p-0" key="rewritten-script-card">
+      {rewrittenScript ? (
+        <>
+          <div className="flex gap-6">
+            {/* Navigation Sidebar - Desktop Only */}
+            <div className="w-56 flex-shrink-0 hidden lg:block px-4">
+              <div className="sticky top-24 space-y-1 pr-2">
+                {sections.map((section) => (
+                  <SideTab
+                    key={section.id}
+                    label={section.label}
+                    active={activeSection === section.id}
+                    onClick={() => scrollToSection(section.id)}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div ref={contentRef} className="flex-1 min-w-0 space-y-6 px-12">
+              {/* Learning Objectives */}
+              <section id="learning-objectives" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{rt.learningObjectives}</h3>
+                <ul className="list-disc pl-6 space-y-1">
+                  {rewrittenScript.learningObjectives.map((objective, index) => (
+                    <li key={index} className="text-muted-foreground">{objective}</li>
+                  ))}
+                </ul>
+              </section>
+
+              {/* Introduction */}
+              <section id="introduction" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{rt.introduction}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
+              </section>
+
+              {/* Main Content */}
+              <section id="main-content" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{rt.mainContent}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
+              </section>
+
+              {/* Conclusion */}
+              <section id="conclusion" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{rt.conclusion}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
+              </section>
+
+              {/* Call to Action */}
+              <section id="call-to-action" className="pt-4 scroll-mt-32">
+                <h3 className="font-medium text-foreground mb-2">{rt.callToAction}</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
+              </section>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="h-[calc(100vh-10rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+          <FileText className="h-12 w-12 text-muted-foreground/50 stroke-[1.5]" />
+          <div className="space-y-2">
+            <p className="text-base font-medium">Your Rewritten Script</p>
+            <p className="text-sm text-muted-foreground max-w-[280px]">
+              After the analysis is complete, your enhanced script will appear here with improvements and suggestions
+            </p>
           </div>
         </div>
-        
-        {/* Content */}
-        <div ref={contentRef} className="flex-1 min-w-0 space-y-6">
-          {/* Learning Objectives */}
-          <section id="learning-objectives" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.learningObjectives}</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              {rewrittenScript.learningObjectives.map((objective, index) => (
-                <li key={index} className="text-muted-foreground">{objective}</li>
-              ))}
-            </ul>
-          </section>
-
-          {/* Introduction */}
-          <section id="introduction" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.introduction}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.introduction}</p>
-          </section>
-
-          {/* Main Content */}
-          <section id="main-content" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.mainContent}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.mainContent}</p>
-          </section>
-
-          {/* Conclusion */}
-          <section id="conclusion" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.conclusion}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.conclusion}</p>
-          </section>
-
-          {/* Call to Action */}
-          <section id="call-to-action" className="pt-4 scroll-mt-32">
-            <h3 className="font-medium text-foreground mb-2">{t.callToAction}</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{rewrittenScript.callToAction}</p>
-          </section>
-        </div>
-      </div>
+      )}
     </div>
   );
-} 
+}
+
+export function ScriptAnalysisCard({ analysis }: ScriptAnalysisCardProps) {
+  const { language } = useLanguageStore();
+  const t = translations[language].ui.analysis;
+
+  return (
+    <div>
+      <div className="sticky top-0 bg-background z-10">
+        <div className="flex items-center justify-between py-3 px-4">
+          <h2 className="text-l font-semibold">{t.title}</h2>
+        </div>
+        <hr className="border-t" />
+      </div>
+      {!analysis && (
+        <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+          <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+          <div className="space-y-1">
+            <p>{t.title}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Nunito } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={outfit.className} style={{ margin: 0, padding: 0, height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {children}
+        <Toaster />
       </body>
     </html>
   );

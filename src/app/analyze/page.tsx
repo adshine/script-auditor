@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/toaster';
+import { Button } from '@/components/ui/button';
 import { RootLayout } from '@/components/layout/root-layout';
 import { ScriptInputCard } from '@/components/features/script-analysis/script-input-card';
 import { ScriptAnalysisCard } from '@/components/features/script-analysis/script-analysis-card';
@@ -11,41 +12,96 @@ import type { ScriptAnalysis } from '@/lib/api';
 import { FileSearch, FileText, Copy } from 'lucide-react';
 import { useLanguageStore } from '@/lib/stores/language-store';
 import { translations } from '@/lib/translations';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { useToast } from '@/hooks/use-toast';
 
 async function analyzeScriptAPI(script: string, model: string, language: string): Promise<ScriptAnalysis> {
-  try {
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ script, model, language }),
-    });
+  const maxRetries = 3;
+  const baseDelay = 1000; // 1 second
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.details || data.error || `Analysis failed: ${response.statusText}`);
-    }
-
-    // Validate the response structure
-    if (!data || typeof data !== 'object') {
-      throw new Error('Invalid API response structure: Response is not an object');
-    }
-
-    const { analysis, rewrittenScript } = data;
-    if (!analysis || !rewrittenScript) {
-      throw new Error('Invalid API response structure: Missing required fields');
-    }
-
-    return data as ScriptAnalysis;
-  } catch (error) {
-    console.error('Error analyzing script:', error);
-    throw error;
+  // Validate script length before sending
+  if (script.length > 100000) {
+    throw new Error('Script is too long. Please reduce the length and try again.');
   }
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}: Sending request with model ${model} and language ${language}`);
+      
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          script: script.trim(),
+          model,
+          language
+        }),
+      });
+
+      let data;
+      try {
+        const textResponse = await response.text();
+        console.log(`Attempt ${attempt}: Raw response:`, textResponse);
+        data = JSON.parse(textResponse);
+      } catch (parseError) {
+        console.error(`Attempt ${attempt}: Failed to parse response:`, parseError);
+        if (attempt === maxRetries) {
+          throw new Error('Failed to parse API response. Please try again.');
+        }
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
+
+      // Check if the response has the expected structure
+      if (!response.ok || !data || typeof data !== 'object') {
+        console.error(`Attempt ${attempt}: Invalid response:`, {
+          status: response.status,
+          ok: response.ok,
+          data
+        });
+        
+        if (attempt === maxRetries) {
+          throw new Error(data?.details || data?.error || `Analysis failed: ${response.statusText}`);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
+
+      // Validate the response structure
+      const { analysis, rewrittenScript } = data;
+      if (!analysis || !rewrittenScript) {
+        console.error(`Attempt ${attempt}: Missing required fields:`, {
+          hasAnalysis: !!analysis,
+          hasRewrittenScript: !!rewrittenScript,
+          data
+        });
+        
+        if (attempt === maxRetries) {
+          throw new Error('Invalid API response structure: Missing required fields');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+        continue;
+      }
+
+      console.log('Analysis completed successfully');
+      return data;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, baseDelay * Math.pow(2, attempt - 1)));
+    }
+  }
+
+  throw new Error('Failed to analyze script after all retries');
 }
 
 export default function AnalyzePage() {
@@ -58,6 +114,7 @@ export default function AnalyzePage() {
   const { language } = useLanguageStore();
   const t = translations[language].ui;
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { toast } = useToast();
 
   // Load stored analysis on mount
   useEffect(() => {
@@ -76,41 +133,93 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!script.trim()) {
-      toast.error(t.input.placeholder);
+      toast({
+        title: "Error",
+        description: t.input.placeholder,
+        variant: "destructive"
+      });
       return;
     }
-    
+
     setLoading(true);
     try {
+      toast({
+        title: "Analyzing",
+        description: t.input.analyzing || 'Analyzing your script...',
+        variant: "default"
+      });
+      
       const result = await analyzeScriptAPI(script, selectedModel, language);
       setAnalysis(result);
-      toast.success('Script analysis completed successfully');
+      
+      toast({
+        title: "Success",
+        description: t.input.analysisComplete || 'Analysis completed successfully',
+        variant: "default"
+      });
     } catch (error) {
       console.error('Error analyzing script:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to analyze script. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : t.input.analysisFailed || 'Failed to analyze script. Please try again.';
+      
+      if (errorMessage.toLowerCase().includes('rate limit')) {
+        toast({
+          title: "Error",
+          description: (
+            <div className="flex flex-col gap-2">
+              <p>{t.input.rateLimitExceeded || 'Rate limit exceeded. Please wait a moment before trying again.'}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                {t.input.reload || 'Reload Page'}
+              </Button>
+            </div>
+          ),
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleCopy = async () => {
-    if (!analysis) return;
-    
-    const fullScript = `${analysis.rewrittenScript.introduction}\n\n${analysis.rewrittenScript.mainContent}\n\n${analysis.rewrittenScript.conclusion}\n\n${analysis.rewrittenScript.callToAction}`;
-    
-    try {
-      await navigator.clipboard.writeText(fullScript);
-      toast.success(t.rewrittenScript.copied, {
-        position: "top-right",
-        className: "z-[100]",
-        duration: 2000,
-      });
-    } catch (err) {
-      toast.error('Failed to copy to clipboard', {
-        position: "top-right",
-        className: "z-[100]",
-        duration: 2000,
-      });
+    if (analysis?.rewrittenScript) {
+      try {
+        const fullScript = [
+          'Learning Objectives:',
+          analysis.rewrittenScript.learningObjectives,
+          '\nIntroduction:',
+          analysis.rewrittenScript.introduction,
+          '\nMain Content:',
+          analysis.rewrittenScript.mainContent,
+          '\nConclusion:',
+          analysis.rewrittenScript.conclusion,
+          '\nCall to Action:',
+          analysis.rewrittenScript.callToAction
+        ].join('\n');
+
+        await navigator.clipboard.writeText(fullScript);
+        
+        toast({
+          title: "Copied successfully!",
+          description: "Rewritten script has been copied to clipboard",
+          variant: "default"
+        });
+      } catch (error) {
+        toast({
+          title: t.rewrittenScript.copyError,
+          description: t.rewrittenScript.copyError,
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -125,13 +234,14 @@ export default function AnalyzePage() {
             ) : (
               <div className="h-full flex flex-col">
                 <div className="sticky top-0 bg-background z-10">
-                  <h2 className="text-l font-semibold py-3 px-4">{t.analysis.title}</h2>
-                  <hr className="border-t" />
+                  <div className="flex h-10 items-center justify-between px-4 border-b">
+                    <h2 className="text-l font-semibold">{t.analysis.title}</h2>
+                  </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
                   <FileSearch className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
                   <div className="space-y-1">
-                    <p>{t.input.placeholder}</p>
+                    <p>{t.analysis.title}</p>
                   </div>
                 </div>
               </div>
@@ -140,47 +250,53 @@ export default function AnalyzePage() {
         </div>
 
         {/* Rewritten Script - Full Width on Mobile */}
-        <div className="flex-1 overflow-auto">
-          {analysis ? (
-            <div className="relative">
-              <div className="flex items-center justify-between sticky top-0 bg-background z-10 p-4 border-b">
-                <h2 className="text-l font-semibold">{t.rewrittenScript.title}</h2>
-                <div className="flex items-center gap-2">
-                  {isMobile && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowAnalysisModal(true)}
-                      >
-                        View Analysis
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopy}
-                        className="px-3"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
+        <div className="flex-1 overflow-auto pb-32">
+          <div className="sticky top-0 bg-background z-10">
+            <div className="flex h-10 items-center justify-between px-4 border-b">
+              <h2 className="text-l font-semibold">{t.rewrittenScript.title}</h2>
+              <div className="flex items-center gap-2">
+                {isMobile && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAnalysisModal(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <FileSearch className="h-4 w-4" />
+                    {t.analysis.title}
+                  </Button>
+                )}
+                {analysis && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                    {t.rewrittenScript.copyAll}
+                  </Button>
+                )}
               </div>
-              <RewrittenScriptCard rewrittenScript={analysis.rewrittenScript} />
+            </div>
+          </div>
+          {loading ? (
+            <div className="h-[calc(100%-2.5rem)] flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
+              <div className="animate-spin">
+                <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
+              </div>
+              <div className="space-y-2">
+                <p className="font-medium">{t.input.analyzing}</p>
+                <p className="text-sm text-muted-foreground">{t.input.placeholder}</p>
+              </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground text-sm space-y-4">
-              <FileText className="h-8 w-8 text-muted-foreground/50 stroke-[1.5]" />
-              <div className="space-y-1">
-                <p>{t.rewrittenScript.title}</p>
-              </div>
-            </div>
+            <RewrittenScriptCard rewrittenScript={analysis?.rewrittenScript} />
           )}
         </div>
 
         {/* Floating Input Card */}
-        <div className="absolute bottom-4 left-4 right-4 md:w-[367px] bg-background rounded-xl shadow-lg border">
+        <div className="absolute bottom-4 left-4 right-4 md:w-[367px] bg-background rounded-2xl shadow-lg border">
           <ScriptInputCard
             script={script}
             onScriptChange={setScript}
@@ -195,9 +311,7 @@ export default function AnalyzePage() {
       {/* Analysis Modal for Mobile */}
       <Dialog open={showAnalysisModal} onOpenChange={setShowAnalysisModal}>
         <DialogContent className="max-w-full sm:max-w-[600px] h-[80vh] overflow-auto">
-          <div className="pt-6">
-            {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
-          </div>
+          {analysis && <ScriptAnalysisCard analysis={analysis.analysis} />}
         </DialogContent>
       </Dialog>
     </RootLayout>
