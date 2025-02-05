@@ -117,7 +117,7 @@ ${languageInstruction}`
           },
         ],
         temperature: 0.7,
-        max_tokens: 2000, // Reduced from 4000 to help with rate limits
+        max_tokens: 4000,
         top_p: 0.9,
         stream: false
       };
