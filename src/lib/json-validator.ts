@@ -1,275 +1,365 @@
+import { z } from 'zod';
 import { ScriptAnalysis, Section, ReadabilityMetrics } from './api';
 
+// Define Zod schemas for our types
+const ReadabilityMetricsSchema = z.object({
+  fleschKincaid: z.number(),
+  wordsPerSentence: z.number(),
+  technicalTerms: z.array(z.string())
+}).strict();
+
+const SectionSchema = z.object({
+  score: z.number(),
+  suggestions: z.array(z.string()),
+  readabilityMetrics: ReadabilityMetricsSchema,
+  aiEnhancements: z.string().optional()
+}).strict();
+
+// Complete schema that requires all fields
+const CompleteScriptAnalysisSchema = z.object({
+  analysis: z.object({
+    technicalTerms: z.array(z.string()),
+    readabilityScore: z.number(),
+    suggestions: z.array(z.string()),
+    overallScore: z.number(),
+    prioritizedImprovements: z.array(z.string()),
+    sections: z.object({
+      introduction: SectionSchema,
+      mainContent: SectionSchema,
+      conclusion: SectionSchema
+    })
+  }),
+  rewrittenScript: z.object({
+    learningObjectives: z.array(z.string()),
+    introduction: z.string(),
+    mainContent: z.string(),
+    conclusion: z.string(),
+    callToAction: z.string()
+  })
+}).strict();
+
+// Partial schema that allows missing fields
+const PartialScriptAnalysisSchema = z.object({
+  analysis: z.object({
+    technicalTerms: z.array(z.string()),
+    readabilityScore: z.number(),
+    suggestions: z.array(z.string()),
+    overallScore: z.number(),
+    prioritizedImprovements: z.array(z.string()),
+    sections: z.object({
+      introduction: SectionSchema,
+      mainContent: SectionSchema.optional(),
+      conclusion: SectionSchema.optional()
+    })
+  }),
+  rewrittenScript: z.object({
+    learningObjectives: z.array(z.string()),
+    introduction: z.string(),
+    mainContent: z.string().optional(),
+    conclusion: z.string().optional(),
+    callToAction: z.string().optional()
+  }),
+  isComplete: z.boolean().optional()
+}).strict();
+
+// Helper type for tracking missing fields
+interface MissingFields {
+  analysis?: {
+    sections?: {
+      mainContent?: boolean;
+      conclusion?: boolean;
+    };
+  };
+  rewrittenScript?: {
+    mainContent?: boolean;
+    conclusion?: boolean;
+    callToAction?: boolean;
+  };
+}
+
+const findMissingFields = (data: z.infer<typeof PartialScriptAnalysisSchema>): MissingFields => {
+  const missing: MissingFields = {};
+
+  // Check analysis sections
+  if (!data.analysis.sections.mainContent || !data.analysis.sections.conclusion) {
+    missing.analysis = { sections: {} };
+    if (!data.analysis.sections.mainContent) missing.analysis.sections!.mainContent = true;
+    if (!data.analysis.sections.conclusion) missing.analysis.sections!.conclusion = true;
+  }
+
+  // Check rewrittenScript fields
+  if (!data.rewrittenScript.mainContent || !data.rewrittenScript.conclusion || !data.rewrittenScript.callToAction) {
+    missing.rewrittenScript = {};
+    if (!data.rewrittenScript.mainContent) missing.rewrittenScript.mainContent = true;
+    if (!data.rewrittenScript.conclusion) missing.rewrittenScript.conclusion = true;
+    if (!data.rewrittenScript.callToAction) missing.rewrittenScript.callToAction = true;
+  }
+
+  return missing;
+};
+
+const generateFollowUpPrompt = (missing: MissingFields): string => {
+  const missingFields: string[] = [];
+
+  if (missing.analysis?.sections) {
+    if (missing.analysis.sections.mainContent) missingFields.push('analysis.sections.mainContent');
+    if (missing.analysis.sections.conclusion) missingFields.push('analysis.sections.conclusion');
+  }
+
+  if (missing.rewrittenScript) {
+    if (missing.rewrittenScript.mainContent) missingFields.push('rewrittenScript.mainContent');
+    if (missing.rewrittenScript.conclusion) missingFields.push('rewrittenScript.conclusion');
+    if (missing.rewrittenScript.callToAction) missingFields.push('rewrittenScript.callToAction');
+  }
+
+  return `The previous response was incomplete. Please provide ONLY the missing content for these fields: ${missingFields.join(', ')}. 
+Return the response as a JSON object with ONLY the missing fields in their correct structure.
+Example format if missing conclusion:
+{
+  "rewrittenScript": {
+    "conclusion": "The conclusion text here"
+  }
+}`;
+};
+
+const mergeResponses = (
+  original: z.infer<typeof PartialScriptAnalysisSchema>,
+  supplement: Partial<z.infer<typeof PartialScriptAnalysisSchema>>
+): z.infer<typeof PartialScriptAnalysisSchema> => {
+  return {
+    ...original,
+    analysis: {
+      ...original.analysis,
+      sections: {
+        ...original.analysis.sections,
+        ...(supplement.analysis?.sections || {})
+      }
+    },
+    rewrittenScript: {
+      ...original.rewrittenScript,
+      ...(supplement.rewrittenScript || {})
+    }
+  };
+};
+
+const cleanJSON = (jsonString: string): string => {
+  // Remove any non-JSON content first
+  let cleaned = jsonString
+    .replace(/^[^{]*({[\s\S]*})[^}]*$/, '$1')
+    .replace(/```(?:json)?\s*([\s\S]*?)\s*```/g, '$1')
+    .replace(/<think>[\s\S]*?<\/think>/g, '')
+    .replace(/<system>[\s\S]*?<\/system>/g, '')
+    .trim();
+
+  try {
+    const parsed = JSON.parse(cleaned);
+    return JSON.stringify(parsed);
+  } catch (e) {
+    console.error('Failed to parse cleaned JSON:', e);
+    throw new Error(`JSON parsing failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+  }
+};
+
+const safeParseJSON = (content: string): unknown => {
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Failed to parse JSON:', error);
+    const cleaned = cleanJSON(content);
+    return JSON.parse(cleaned);
+  }
+};
+
+const cleanInputText = (text: string): string => {
+  return text
+    // Remove zero-width spaces and other invisible characters
+    .replace(/[\u200B-\u200D\uFEFF\uFFFE\uFEFF]/g, '')
+    // Replace smart quotes with straight quotes
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    // Replace em dash and en dash with regular dash
+    .replace(/[\u2013\u2014]/g, '-')
+    // Replace multiple spaces with single space
+    .replace(/\s+/g, ' ')
+    // Replace multiple newlines with double newline
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove null characters
+    .replace(/\0/g, '')
+    // Remove control characters except newlines and tabs
+    .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F]/g, '')
+    // Fix common typographic issues
+    .replace(/\.{3,}/g, '...') // Replace multiple dots with ellipsis
+    .replace(/\s+([.,!?;:])/g, '$1') // Remove spaces before punctuation
+    .replace(/([.,!?;:])\s*/g, '$1 ') // Ensure single space after punctuation
+    // Trim whitespace
+    .trim();
+};
+
 export class JSONValidator {
-  private validateReadabilityMetrics(metrics: any): metrics is ReadabilityMetrics {
-    return (
-      typeof metrics.fleschKincaid === 'number' &&
-      typeof metrics.wordsPerSentence === 'number' &&
-      Array.isArray(metrics.technicalTerms) &&
-      metrics.technicalTerms.every((term: any) => typeof term === 'string')
-    );
-  }
-
-  private validateSection(section: any): section is Section {
-    return (
-      typeof section.score === 'number' &&
-      Array.isArray(section.suggestions) &&
-      section.suggestions.every((s: any) => typeof s === 'string') &&
-      this.validateReadabilityMetrics(section.readabilityMetrics) &&
-      (section.aiEnhancements === undefined || typeof section.aiEnhancements === 'string')
-    );
-  }
-
-  public validateScriptAnalysis(data: any): data is ScriptAnalysis {
+  public validateScriptAnalysis(data: unknown): data is ScriptAnalysis {
     try {
-      // Validate top-level structure
-      if (!data || typeof data !== 'object') {
-        throw new Error('Response must be an object');
+      // First try complete schema
+      const completeResult = CompleteScriptAnalysisSchema.safeParse(data);
+      if (completeResult.success) {
+        return true;
       }
 
-      if (!data.analysis || !data.rewrittenScript) {
-        throw new Error('Missing required top-level fields: analysis and rewrittenScript');
+      // If complete validation fails, try partial schema
+      const partialResult = PartialScriptAnalysisSchema.safeParse(data);
+      if (partialResult.success) {
+        console.warn('Partial response detected. Missing fields:', findMissingFields(partialResult.data));
+        return false;
       }
 
-      // Validate analysis section
-      const analysis = data.analysis;
-      if (!Array.isArray(analysis.technicalTerms) ||
-          typeof analysis.readabilityScore !== 'number' ||
-          !Array.isArray(analysis.suggestions) ||
-          typeof analysis.overallScore !== 'number' ||
-          !Array.isArray(analysis.prioritizedImprovements) ||
-          !analysis.sections) {
-        throw new Error('Invalid analysis structure');
-      }
-
-      // Validate sections
-      if (!analysis.sections.introduction || 
-          !this.validateSection(analysis.sections.introduction)) {
-        throw new Error('Invalid introduction section');
-      }
-
-      if (analysis.sections.mainContent && 
-          !this.validateSection(analysis.sections.mainContent)) {
-        throw new Error('Invalid mainContent section');
-      }
-
-      if (analysis.sections.conclusion && 
-          !this.validateSection(analysis.sections.conclusion)) {
-        throw new Error('Invalid conclusion section');
-      }
-
-      // Validate rewrittenScript
-      const script = data.rewrittenScript;
-      if (!Array.isArray(script.learningObjectives) ||
-          typeof script.introduction !== 'string' ||
-          typeof script.mainContent !== 'string' ||
-          typeof script.conclusion !== 'string' ||
-          typeof script.callToAction !== 'string') {
-        throw new Error('Invalid rewrittenScript structure');
-      }
-
-      return true;
+      console.error('Validation errors:', completeResult.error.format());
+      return false;
     } catch (error) {
-      throw new Error(`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Validation error:', error);
+      return false;
     }
   }
 }
 
 export class LLMResponseHandler {
   private validator: JSONValidator;
+  private readonly SYSTEM_PROMPT = `You MUST follow these rules for JSON responses:
+1. Return ONLY valid JSON
+2. Use straight quotes (") not smart quotes
+3. Include ALL required fields:
+   - analysis.technicalTerms (array)
+   - analysis.readabilityScore (number)
+   - analysis.suggestions (array)
+   - analysis.overallScore (number)
+   - analysis.prioritizedImprovements (array)
+   - analysis.sections.introduction (object)
+   - analysis.sections.mainContent (object)
+   - analysis.sections.conclusion (object)
+   - rewrittenScript.learningObjectives (array)
+   - rewrittenScript.introduction (string)
+   - rewrittenScript.mainContent (string)
+   - rewrittenScript.conclusion (string)
+   - rewrittenScript.callToAction (string)
+4. Do not include any text outside the JSON
+5. If you cannot complete the entire response, set "isComplete": false and include as many fields as you can
+6. Each field must be properly formatted and complete - no placeholders or partial content`;
 
   constructor() {
     this.validator = new JSONValidator();
   }
 
-  private normalizeNewlines(text: string): string {
-    // First convert all escaped newlines to actual newlines
-    text = text.replace(/\\n/g, '\n');
-    // Then properly escape them back
-    return text.replace(/\n/g, '\\n');
-  }
+  public async processResponse(response: string, retryCount: number = 0): Promise<ScriptAnalysis> {
+    const MAX_RETRIES = 3;
+    
+    try {
+      const parsedData = safeParseJSON(response);
+      
+      // Try complete schema first
+      const completeResult = CompleteScriptAnalysisSchema.safeParse(parsedData);
+      if (completeResult.success) {
+        return completeResult.data;
+      }
 
-  private normalizeMarkdown(text: string): string {
-    // Handle markdown special characters
-    return text
-      .replace(/\*/g, '\\*')
-      .replace(/`/g, '\\`')
-      .replace(/#/g, '\\#')
-      .replace(/\[/g, '\\[')
-      .replace(/\]/g, '\\]')
-      .replace(/\(/g, '\\(')
-      .replace(/\)/g, '\\)')
-      .replace(/>/g, '\\>')
-      .replace(/_/g, '\\_');
+      // If complete validation fails, try partial schema
+      const partialResult = PartialScriptAnalysisSchema.safeParse(parsedData);
+      if (partialResult.success) {
+        if (retryCount >= MAX_RETRIES) {
+          throw new Error('Max retries reached. Unable to get complete response.');
+        }
+
+        const missingFields = findMissingFields(partialResult.data);
+        const followUpPrompt = generateFollowUpPrompt(missingFields);
+        
+        // Here you would make another call to the LLM with followUpPrompt
+        // For now, we'll throw an error with the follow-up prompt
+        throw new Error(`Incomplete response. Follow-up prompt: ${followUpPrompt}`);
+      }
+
+      throw new Error('Invalid response structure');
+    } catch (error) {
+      console.error('processResponse error:', error);
+      throw error;
+    }
   }
 
   public cleanResponse(response: string): string {
     console.log('cleanResponse: Original response:', response);
     
-    // Step 1: Remove any leading/trailing whitespace and special characters
-    let cleaned = response
-      .replace(/^\s+|\s+$/g, '') // Remove leading/trailing whitespace
-      .replace(/^[\u200B-\u200D\uFEFF\uFFFE\uFEFF]/, '') // Remove BOM and zero-width spaces
-      .replace(/^[^{]*{/, '{') // Remove any text before the first {
-      .replace(/}[^}]*$/, '}'); // Remove any text after the last }
-
-    console.log('cleanResponse: After initial cleaning:', cleaned);
-
-    // Step 2: Remove markdown code blocks
-    cleaned = cleaned
-      .replace(/^```json\s*|\s*```$/g, '')
-      .replace(/```/g, '');
-
-    console.log('cleanResponse: After removing code blocks:', cleaned);
-
-    // Step 3: Ensure the response starts with { and ends with }
-    if (!cleaned.startsWith('{')) {
-      cleaned = '{' + cleaned;
-    }
-    if (!cleaned.endsWith('}')) {
-      cleaned = cleaned + '}';
-    }
-
-    // Step 4: Handle escaped characters
-    cleaned = cleaned
-      // First unescape any double-escaped characters
-      .replace(/\\\\/g, '\\')
-      // Handle newlines
-      .replace(/\\n/g, '\n')
-      .replace(/\n/g, '\\n')
-      // Handle quotes
-      .replace(/\\"/g, '"')
-      .replace(/(?<!\\)"/g, '\\"')
-      // Handle other escaped characters
-      .replace(/\\t/g, '\t')
-      .replace(/\\r/g, '\r')
-      .replace(/\\\\/g, '\\');
-
-    console.log('cleanResponse: After handling escaped characters:', cleaned);
-
-    // Step 5: Handle markdown content within strings
     try {
-      const parsed = JSON.parse(cleaned);
-      console.log('cleanResponse: Successfully parsed initial JSON');
+      const parsedData = safeParseJSON(response);
+      const result = CompleteScriptAnalysisSchema.safeParse(parsedData);
       
-      const processValue = (value: any): any => {
-        if (typeof value === 'string') {
-          return this.normalizeMarkdown(this.normalizeNewlines(value));
-        }
-        if (Array.isArray(value)) {
-          return value.map(processValue);
-        }
-        if (value && typeof value === 'object') {
-          const processed: Record<string, any> = {};
-          for (const [key, val] of Object.entries(value)) {
-            processed[key] = processValue(val);
-          }
-          return processed;
-        }
-        return value;
-      };
-      
-      const result = JSON.stringify(processValue(parsed));
-      console.log('cleanResponse: Final cleaned result:', result);
-      return result;
-    } catch (e) {
-      console.error('cleanResponse: Error during JSON processing:', e);
-      console.error('cleanResponse: Problematic JSON:', cleaned);
-      
-      // Try to fix common JSON issues
-      try {
-        // Remove any potential trailing commas
-        cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
-        // Ensure property names are quoted
-        cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-        // Replace single quotes with double quotes
-        cleaned = cleaned.replace(/'/g, '"');
-        
-        console.log('cleanResponse: After additional fixes:', cleaned);
-        
-        // Try parsing one more time
-        JSON.parse(cleaned);
-        return cleaned;
-      } catch (finalError) {
-        console.error('cleanResponse: Final error:', finalError);
-        // If we still can't fix it, return the cleaned string for further processing
-        return cleaned;
+      if (!result.success) {
+        console.error('Schema validation errors:', result.error.format());
+        throw new Error('Invalid script analysis structure: ' + result.error.message);
       }
+      
+      return JSON.stringify(result.data);
+    } catch (e) {
+      console.error('cleanResponse: Error during processing:', e);
+      throw new Error(`Failed to process response: ${e instanceof Error ? e.message : 'Unknown error'}`);
     }
   }
 
   public parseAndValidate(response: string): ScriptAnalysis {
     try {
-      // Clean the response
-      const cleanedResponse = this.cleanResponse(response);
+      const parsedData = safeParseJSON(response);
+      const result = CompleteScriptAnalysisSchema.safeParse(parsedData);
       
-      // Parse JSON
-      let parsedData: any;
-      try {
-        parsedData = JSON.parse(cleanedResponse);
-      } catch (parseError) {
-        // Try parsing with relaxed JSON rules
-        const relaxedJSON = cleanedResponse
-          .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":') // Quote unquoted keys
-          .replace(/'/g, '"'); // Replace single quotes with double quotes
-        parsedData = JSON.parse(relaxedJSON);
+      if (!result.success) {
+        console.error('Schema validation errors:', result.error.format());
+        throw new Error('Invalid script analysis structure: ' + result.error.message);
       }
-
-      // Validate the structure
-      if (!this.validator.validateScriptAnalysis(parsedData)) {
-        throw new Error('Invalid script analysis structure');
-      }
-
-      return parsedData as ScriptAnalysis;
+      
+      return result.data;
     } catch (error) {
-      throw new Error(`Failed to parse and validate response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('parseAndValidate: Error:', error);
+      throw new Error(`Failed to validate response: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   public enhancePrompt(prompt: string): string {
-    return `
-${prompt}
+    return `${this.SYSTEM_PROMPT}
 
-IMPORTANT FORMATTING INSTRUCTIONS:
-1. Respond ONLY with a valid JSON object
-2. Do not include any text, markdown, or explanations outside the JSON
-3. All string values must use double quotes
-4. Escape any quotes within strings with backslash
-5. Follow the exact field names and data types specified
-6. Include all required fields
-7. Ensure numbers are actual numbers, not strings
-8. Arrays must contain elements of the specified type
-9. Do not include any comments or extra whitespace
-10. Properly escape all special characters in strings (\\n, \\", etc.)
-11. If response would be too long, reduce content length but maintain complete JSON structure
-
-Example response format:
-{
-  "analysis": {
-    "technicalTerms": ["term1", "term2"],
-    "readabilityScore": 9.0,
-    "suggestions": ["suggestion1"],
-    "overallScore": 8.5,
-    "prioritizedImprovements": ["improvement1"],
-    "sections": {
-      "introduction": {
-        "score": 8.5,
-        "suggestions": ["suggestion1"],
-        "readabilityMetrics": {
-          "fleschKincaid": 8.0,
-          "wordsPerSentence": 15.5,
-          "technicalTerms": ["term1"]
-        }
-      }
-    }
-  },
-  "rewrittenScript": {
-    "learningObjectives": ["objective1"],
-    "introduction": "Introduction text",
-    "mainContent": "Main content text",
-    "conclusion": "Conclusion text",
-    "callToAction": "Call to action text"
+${prompt}`;
   }
-}`;
+
+  public sanitizeInput(script: string): string {
+    // Basic text cleanup
+    let cleaned = cleanInputText(script);
+
+    // Additional script-specific cleanup
+    cleaned = cleaned
+      // Standardize section headers
+      .replace(/^(Introduction|Main Content|Conclusion|Call to Action):\s*/gim, '$1:\n')
+      // Ensure consistent list formatting
+      .replace(/^[-*•]\s*/gm, '- ')
+      // Fix numbered lists
+      .replace(/^\d+\)\s*/gm, '$1. ')
+      // Standardize visual cue markers
+      .replace(/\[visual:?\s*(cue:?)?\s*/gi, '[VISUAL CUE: ')
+      .replace(/\[\s*visual\s+cue\s*\]/gi, '[VISUAL CUE]')
+      // Fix common markdown issues
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markers
+      .replace(/\*(.*?)\*/g, '$1')     // Remove italic markers
+      .replace(/_{2,}/g, '_')          // Fix multiple underscores
+      // Ensure consistent spacing around visual cues
+      .replace(/\]\s*\[/g, ']\n[')
+      // Fix common typos in technical terms
+      .replace(/ai\s+avatar/gi, 'AI Avatar')
+      .replace(/machine\s+learning/gi, 'Machine Learning')
+      .replace(/deep\s+learning/gi, 'Deep Learning')
+      // Ensure proper spacing after periods
+      .replace(/\.(?=[A-Z])/g, '. ')
+      // Remove excessive exclamation marks
+      .replace(/!{2,}/g, '!')
+      // Remove HTML tags if any
+      .replace(/<[^>]*>/g, '')
+      // Ensure proper paragraph spacing
+      .replace(/\n{3,}/g, '\n\n');
+
+    console.log('Input sanitization - Original:', script);
+    console.log('Input sanitization - Cleaned:', cleaned);
+
+    return cleaned;
   }
 } 
