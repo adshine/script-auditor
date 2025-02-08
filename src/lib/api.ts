@@ -277,12 +277,14 @@ DO NOT add any AI introductions — the avatar is already trained with the user'
 • Remove any direct source citations, references, or extraneous markings which do not contribute to a smooth conversational flow.  
 • Clean up the script by eliminating irrelevant details, integrating necessary technical points in plain language, and ensuring the pacing is natural for voiceover.  
 • Also clean up the script by removing any extraneous text or excerpts that will and might confuse the avatar and lead to copyright issues.
+• Fix pacing by eliminating extraneous content and improving flow.
+• Prevent copyright risks by rewriting potentially problematic sections.
 
 
 Evaluate and improve the script based on these key areas:
 
 1. Engagement & Structure:
-   - Hook and attention-grabbing opening
+   - Hook and attention-grabbing opening: Example:"Ever tried assembling IKEA furniture without instructions? Wireframing is like that—it gives structure to your designs before you add the final polish."
    - Hook: Must use either (1) relatable direct question or (2) relatable metaphor [IMPLEMENTED] 
    - Clear learning objectives
    - Learning objectives: MAX 5, start with action verbs (e.g., "Design...", "Execute...")  
@@ -295,9 +297,9 @@ Evaluate and improve the script based on these key areas:
    - Natural conversational tone
    - Strategic pauses for emphasis
    - Varied sentence lengths
-   - Chunked information
+   - Chunked information for better readability without losing important details or compromising depth.
    - Clear transitions between topics
-   - Make sure to break up long sentences into paragraphs
+   - Make sure to break up long sentences into paragraphs for better readability.
 
 3. Visual Integration:
    - Visual cue markers [VISUAL CUE] for demos/graphics
@@ -314,17 +316,20 @@ Evaluate and improve the script based on these key areas:
      Example:  
      > [VISUAL CUE: animated_timeline|interview_process_flow|8s]
 
+
 4. Instructional Design:
    - Progressive complexity
    - Real-world examples
-   - Practice opportunities
+   - Practice opportunities: Add hands-on exercises.
    - Memory retention techniques
    - Active learning prompts
    - **Incorporate brief role-play or example segments** to illustrate best practices or common pitfalls
+   - Real-World Examples: Convert theory into practical takeaways.
+   - Role-Play Scenarios: Illustrate common mistakes & best practices.
 
 5. Accessibility & Clarity:
    - Simple language for complex concepts
-   - Defined technical terms
+   - Define Technical Terms clearly for all audiences.
    - Consistent terminology
    - Cultural sensitivity
    - Inclusive language
@@ -352,7 +357,7 @@ Evaluate and improve the script based on these key areas:
    - ≥2 languages
 
 9. **Validation Requirements**  
-   - Reject scripts with:  
+   - Reject scripts if:  
      • Flesch-Kincaid >12.0  
      • Undefined technical terms  
      • >20 words/sentence average
